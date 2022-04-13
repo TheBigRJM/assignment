@@ -1,5 +1,8 @@
-# Ulster University EGM722 assignment
-egm722 programming fro GIS and remote sensing
- - script and data for assessment -
+# egm722 programming for GIS and remote sensing
+script and data for assessment
 
+1. What is the program for?
 
+2. Guidance on use
+
+4. 
