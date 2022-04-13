@@ -1,5 +1,7 @@
-################################################
-## Code Written by Rory Middleton, April 2022 ##
-## As part of Ulster University egm722         ##
-## programming for GIS and Remote Sensing     ##
+import numpy as np
+import rasterio as rio
+import geopandas as gpd
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
 
