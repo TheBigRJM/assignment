@@ -97,15 +97,18 @@ sbiIntersect, basIntersect = searchSites()
 sppSearch = searchSpecies()
 
 #Calls bat only search
-batsearch = searchBats()
+batSearch = searchBats()
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)) # Create an empty plot
 
 buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
-point.plot(ax=ax, marker='o', color='red', markersize=2) # adapt to accept user defined variable from GUI
+point.plot(ax=ax, marker='*', color='red', markersize=2) # adapt to accept user defined variable from GUI
 sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
 basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
 
+gridlines = ax.gridlines(draw_labels=True)
 
 plt.show();
 
