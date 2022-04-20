@@ -26,8 +26,6 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     buffer_area value is in metres
     """
 
-# create global variables to use outside the function
-
     pointGeom = Point(xin, yin)
     bufferGeom = pointGeom.buffer(buffer_radius, resolution=50)
 
@@ -36,25 +34,36 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
     return userfeat, userbuffer, bufferGeom
 
-def searcharea_frompoly(user_poly, buffer_radius, bufferGeom):
+def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
-    userfeat = gpd.read_file(user_poly)
+    userfeat = gpd.read_file(user_polypath)
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
+    bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
 
-def searchSpecies
-    """function to carry out a species search based on input parameters"""
+    return userfeat, userbuffer, bufferGeom
 
+def searchSpecies():
+    """
+    function to carry out a species search based on input parameters
+    """
 
+    sppSearch = specieslayer[specieslayer.intersects(buffer_feature, align=True)]
 
+    return sppSearch
 
-def searchBats
+def searchBats():
     """function to carry out a bats search based on input parameters"""
 
-def searchGCNs
+    batrecs = specieslayer[specieslayer['InformalGr'] == 'mammal - bat']
+    batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
+
+    return batSearch
+
+def searchGCNs():
     """function to carry out a Great Crested Newt search based on input parameters"""
 
-def searchInvasive
+def searchInvasive():
     """function to carry out an Invasive Species search based on input parameters"""
 
 def searchSites():
@@ -84,13 +93,19 @@ point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
 # Calls sites search function
 sbiIntersect, basIntersect = searchSites()
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)) # Create an empty plot
+# Calls all species search
+sppSearch = searchSpecies()
 
+#Calls bat only search
+batsearch = searchBats()
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)) # Create an empty plot
 
 buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
 point.plot(ax=ax, marker='o', color='red', markersize=2) # adapt to accept user defined variable from GUI
 sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
 basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+
 
 plt.show();
 
