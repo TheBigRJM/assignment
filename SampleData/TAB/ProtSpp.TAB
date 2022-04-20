@@ -1,0 +1,45 @@
+!table
+!version 1250
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 33
+    RecID Char (16) ;
+    SciName Char (214) ;
+    CommonName Char (150) Index 1 ;
+    InformalGroup Char (72) ;
+    SpID Char (16) ;
+    Location Char (150) ;
+    LocDetail Char (100) ;
+    GridRef Char (12) ;
+    Grid1km Char (6) ;
+    Date Char (29) ;
+    Year Integer ;
+    Recorder Char (147) ;
+    Source Char (254) ;
+    SampleMethod Char (150) ;
+    SexStage Char (150) ;
+    RecType Char (33) ;
+    EuProt Char (3) ;
+    UKProt Char (3) ;
+    PrincipalSpp Char (3) ;
+    RareSpp Char (3) ;
+    StatInvasive Char (3) ;
+    StaffsINNS Char (3) ;
+    RecordStatus Char (28) ;
+    Confidentiality Char (12) ;
+    EA_INNS Logical ;
+    Rec3Code Char (10) ;
+    MapMateCode Char (8) ;
+    EA_List_May_2019 Logical ;
+    Easting Integer ;
+    Northing Integer ;
+    Precision Integer ;
+    DateUploaded Date ;
+    ID Char (10) ;
+begin_metadata
+"\IsReadOnly" = "FALSE"
+"\MapInfo" = ""
+"\MapInfo\TableID" = "917101ce-0818-425a-af1d-32dd899bf1e6"
+end_metadata

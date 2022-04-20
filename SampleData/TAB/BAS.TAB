@@ -1,0 +1,36 @@
+!table
+!version 300
+!charset WindowsLatin1
+
+Definition Table
+  Type NATIVE Charset "WindowsLatin1"
+  Fields 24
+    SiteID Char (16) ;
+    ParentID Char (16) ;
+    SiteName Char (150) ;
+    ParentSite Char (150) ;
+    District Char (2) ;
+    BAPHabitat Char (10) ;
+    Status Char (30) ;
+    Condition Char (2) ;
+    Management Char (254) ;
+    Surveyor Char (50) ;
+    SurveyDate Date ;
+    Year Smallint ;
+    Source Char (30) ;
+    NotifyDate Date ;
+    Comments Char (80) ;
+    Abstract Char (254) ;
+    BdyConfirm Logical ;
+    LandLine Logical ;
+    dbLink Char (16) ;
+    Rec6Link Char (16) ;
+    GridRef Char (10) ;
+    Superceded Logical ;
+    DateUploaded Date ;
+    ID Char (10) ;
+begin_metadata
+"\IsReadOnly" = "FALSE"
+"\MapInfo" = ""
+"\MapInfo\TableID" = "33aa5a1b-cb74-40a7-b848-28b2ed3bd299"
+end_metadata
