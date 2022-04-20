@@ -16,6 +16,7 @@ from shapely.geometry import Point, LineString, Polygon
 import PySimpleGUI as sg
 
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
+fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)) # Create an empty plot
 
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
@@ -23,59 +24,73 @@ sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 
-def searcharea_frompoint(point_x, point_y, buffer_radius):
+def searcharea_frompoint(xin, yin, buffer_radius):
 
-    '''
-    Creates a point and buffer based on the inputted arguments.
+    """
+    Creates a point and buffer based on the user inputted arguments.
 
     point_x and point_y require pure easting and northing values.
 
     buffer_area value is in metres
-    '''
+    """
 
-    userfeat = gpd.GeoSeries(Point(point_x, point_y))
-    userfeat.set_crs(epsg=27700, inplace=True) # set the CRS of the point
-    userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
-    userbuffer.set_crs(epsg=27700, inplace=True) # set the CRS of the buffer
-    return(userfeat, userbuffer)
+# create global variables to use outside the function
+    global bufferGeom
+    global userfeat
+    global userbuffer
 
-def searcharea_frompoly(user_poly, buffer_radius):
-    ''''''
+    pointGeom = Point(xin, yin)
+    bufferGeom = pointGeom.buffer(buffer_radius, resolution=50)
+
+    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True)
+    userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
+
+    return userfeat, userbuffer, bufferGeom
+
+def searcharea_frompoly(user_poly, buffer_radius, bufferGeom):
+    """ """
 
     userfeat = gpd.read_file(user_poly)
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
 
 def searchSpecies
-    '''function to carry out a species search based on input parameters'''
+    """function to carry out a species search based on input parameters"""
 
 
 
 
 def searchBats
-    '''function to carry out a bats search based on input parameters'''
+    """function to carry out a bats search based on input parameters"""
 
 def searchGCNs
-    '''function to carry out a Great Crested Newt search based on input parameters'''
+    """function to carry out a Great Crested Newt search based on input parameters"""
 
 def searchInvasive
-    '''function to carry out an Invasive Species search based on input parameters'''
+    """function to carry out an Invasive Species search based on input parameters"""
 
 def searchSites():
     '''
     function to carry out a nature conservation sites search based on input parameters
     note the buffer must be a shapely geometry as intersecting two GeoDataFrames requires equal indexes
     '''
-    sbiIntersect = sbilayer[sbilayer.intersects(buffer, align=True)]
-    basIntersect = baslayer[baslayer.intersects(buffer, align=True)]
-    return(sbiIntersect, basIntersect)
+    sbiIntersect = sbilayer[sbilayer.intersects(bufferGeom, align=True)]
+    basIntersect = baslayer[baslayer.intersects(bufferGeom, align=True)]
 
+    sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+    basIntersect.plot(ax=ax, color='blue', alpha=0.5)
 
+    return sbiIntersect, basIntersect
+
+searcharea_frompoint(385000.00, 33500.00, 2000)
+searchSites()
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+
+
 
 userbuffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
 userfeat.plot(ax=ax, marker='o', color='red', markersize=2) # adapt to accept user defined variable from GUI
-sbilayer.plot(ax=ax)
-baslayer.plot(ax=ax, color='purple')
+sbilayer.plot(ax=ax, color='green', alpha=0.5)
+baslayer.plot(ax=ax, color='blue', alpha=0.5)
 
 plt.show();
 
