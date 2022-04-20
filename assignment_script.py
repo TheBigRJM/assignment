@@ -22,12 +22,6 @@ specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
 sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
-userfeat = Point(385000.00, 335000.00)
-userfeat = gpd.GeoSeries(Point(385000.00, 335000.00))
-userbuffer = testpoint.buffer(1000)
-userbuffer = gpd.GeoSeries(testbuffer)
-userbuffer = ShapelyFeature(testbuffer, crs=myCRS)
-
 
 def searcharea_frompoint(point_x, point_y, buffer_radius):
 
@@ -40,7 +34,9 @@ def searcharea_frompoint(point_x, point_y, buffer_radius):
     '''
 
     userfeat = gpd.GeoSeries(Point(point_x, point_y))
+    userfeat.set_crs(epsg=27700, inplace=True) # set the CRS of the point
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
+    userbuffer.set_crs(epsg=27700, inplace=True) # set the CRS of the buffer
     return(userfeat, userbuffer)
 
 def searcharea_frompoly(user_poly, buffer_radius):
@@ -64,14 +60,22 @@ def searchGCNs
 def searchInvasive
     '''function to carry out an Invasive Species search based on input parameters'''
 
-def searchSites
-    '''function to carry out a nature conservation sites search based on input parameters'''
+def searchSites():
+    '''
+    function to carry out a nature conservation sites search based on input parameters
+    note the buffer must be a shapely geometry as intersecting two GeoDataFrames requires equal indexes
+    '''
+    sbiIntersect = sbilayer[sbilayer.intersects(buffer, align=True)]
+    basIntersect = baslayer[baslayer.intersects(buffer, align=True)]
+    return(sbiIntersect, basIntersect)
 
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
 userbuffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
 userfeat.plot(ax=ax, marker='o', color='red', markersize=2) # adapt to accept user defined variable from GUI
+sbilayer.plot(ax=ax)
+baslayer.plot(ax=ax, color='purple')
 
 plt.show();
 
