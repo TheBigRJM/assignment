@@ -49,11 +49,22 @@ def searchSpecies():
     """
 
     sppSearch = specieslayer[specieslayer.intersects(buffer_feature, align=True)]
+    # Run 1km data species search
 
-    return sppSearch
+    # Concatenate the 1km and <=100m species records search results
+
+    # Remove extraneous columns for GDPR
+    sppOutput = sppSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return sppSearch, sppOutput
 
 def searchBats():
-    """function to carry out a bats search based on input parameters"""
+    """
+    function to carry out a bats search based on input parameters
+    """
 
     batrecs = specieslayer[specieslayer['InformalGr'] == 'mammal - bat']
     batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
@@ -61,10 +72,26 @@ def searchBats():
     return batSearch
 
 def searchGCNs():
-    """function to carry out a Great Crested Newt search based on input parameters"""
+    """
+    function to carry out a Great Crested Newt search based on input parameters
+    """
+    df = specieslayer
+    gcnrecs = df[(df['InformalGr'] == 'amphibian') & df['CommonName'] == 'Great Crested Newt']
+    gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
+
+    return gcnSearch
+
 
 def searchInvasive():
-    """function to carry out an Invasive Species search based on input parameters"""
+    """
+    function to carry out an Invasive Species search based on input parameters
+    """
+    df = specieslayer
+    invrecs = df[(df['StatInvasive'] == 'Yes') & df['StaffsINNS'] == 'Yes']
+    invSearch = invrecs[invrecs.intersects(buffer_feature, align=True)]
+
+    return invSearch
+
 
 def searchSites():
     '''
@@ -87,28 +114,38 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
-# Create point and buffer using user defined co-ordinates
+# Create point and buffer using user defined co-ordinates & buffer feature for interrogation
 point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
+
+# Calls all species search
+sppSearch, sppOutput = searchSpecies()
 
 # Calls sites search function
 sbiIntersect, basIntersect = searchSites()
 
-# Calls all species search
-sppSearch = searchSpecies()
-
-#Calls bat only search
+# Calls bat only search
 batSearch = searchBats()
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)) # Create an empty plot
+# Calls GCN only search
+gcnSearch = searchGCNs()
 
-buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
-point.plot(ax=ax, marker='*', color='red', markersize=2) # adapt to accept user defined variable from GUI
-sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
-basIntersect.plot(ax=ax, color='blue', alpha=0.5)
-sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
+#Call
 
-gridlines = ax.gridlines(draw_labels=True)
+# Create an empty plot
+fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+
+
+plotBuffer = buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
+plotPoint = point.plot(ax=ax, marker='*', color='red', markersize=2) # adapt to accept user defined variable from GUI
+plotSBI = sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+plotBAS = basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+plotPS100 = sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+plotbats = batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
+plotGCN = gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+
+gridlines = ax.gridlines(draw_labels=True,
+                         xlocs=range(360000,430000,1000),
+                         ylocs=range(270000,370000,1000))
 
 plt.show();
 
