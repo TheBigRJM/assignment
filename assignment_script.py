@@ -161,11 +161,13 @@ plt.show();
 
 # Create GUI layout elements and structure
 layout = [[sg.Text("Tool for the production of standard data searches")],
-            [sg.Text("Please input grid reference (6,8 or 10 fig)"), sg.Input(key='-userGR-')],
-            [sg.Button('Submit'),sg.Button('Cancel')]]
+          [sg.Text("Please input grid reference (6,8 or 10 fig)"), sg.Input(key='-userGR-')],
+          [sg.Button('Submit'),sg.Button('Cancel')]]
 
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200,100))
+
+
 event, values = window.read(close=True)
 
 if event == 'Submit':
