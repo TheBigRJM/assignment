@@ -7,6 +7,7 @@
 # ymax: 340000.00
 
 import numpy as np
+import pandas as pd
 import rasterio as rio
 import geopandas as gpd
 import cartopy.crs as ccrs
@@ -47,11 +48,14 @@ def searchSpecies():
     """
     function to carry out a species search based on input parameters
     """
-
+    # Run search on spp records <= 100m precision
     sppSearch = specieslayer[specieslayer.intersects(buffer_feature, align=True)]
+
     # Run 1km data species search
+    spp1kmSearch = species1kmlayer[species1kmlayer.intersects(buffer_feature, align=True)]
 
     # Concatenate the 1km and <=100m species records search results
+    sppSearch = pd.concat([sppSearch, spp1kmSearch])
 
     # Remove extraneous columns for GDPR
     sppOutput = sppSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
@@ -109,6 +113,7 @@ def searchSites():
 
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
+species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
 sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
