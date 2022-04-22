@@ -73,7 +73,13 @@ def searchBats():
     batrecs = specieslayer[specieslayer['InformalGr'] == 'mammal - bat']
     batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
 
-    return batSearch
+    # Remove extraneous columns for GDPR
+    batOutput = batSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return batSearch, batOutput
 
 def searchGCNs():
     """
@@ -83,7 +89,13 @@ def searchGCNs():
     gcnrecs = df[(df['InformalGr'] == 'amphibian') & df['CommonName'] == 'Great Crested Newt']
     gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
 
-    return gcnSearch
+    # Remove extraneous columns for GDPR
+    gcnOutput = gcnSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return gcnSearch, gcnOutput
 
 
 def searchInvasive():
@@ -94,7 +106,12 @@ def searchInvasive():
     invrecs = df[(df['StatInvasive'] == 'Yes') & df['StaffsINNS'] == 'Yes']
     invSearch = invrecs[invrecs.intersects(buffer_feature, align=True)]
 
-    return invSearch
+    invOutput = invSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return invSearch, invOutput
 
 
 def searchSites():
@@ -105,7 +122,10 @@ def searchSites():
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
 
+
+
     return sbiIntersect, basIntersect
+
 
 
 
