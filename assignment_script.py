@@ -176,31 +176,55 @@ plt.show();
 
 
 
-
 ##### GUI #####
 
 # Create GUI layout elements and structure
-layout = [[sg.Text("Tool for the production of standard data searches")],
-          [sg.Text("Please input grid reference (6,8 or 10 fig)"), sg.Input(key='-userGR-')],
-          [sg.Button('Submit'),sg.Button('Cancel')]]
+
+column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
+           [sg.Text("----------------------------------------")],
+           [sg.Text("Search from Grid Reference or Shapefile")],
+           [sg.Text("Grid Reference"), sg.Input('Easting', key="-EASTING-"), sg.Input('Northing', key="-NORTHING-"),
+            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-"), sg.FileBrowse()],
+           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-")]]
+
+
+column2 = [[sg.Text("Select Search parameters")],
+           [sg.Checkbox('Species', default=False, key="-SPP-")],
+           [sg.Checkbox('Bats only', default=False, key="-BATS-")],
+           [sg.Checkbox('GCN only', default=False, key="-GCN-")],
+           [sg.Checkbox('Invasives', default=False, key="-INV-")],
+           [sg.Checkbox('Sites', default=False, key="-SITES-")]]
+
+layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
+          [sg.Button('Proceed', key=("-PROCEED-")), sg.Button('Cancel', key=("-CANCEL-"))]]
 
 # put gui elements in a window
-window = sg.Window("Data Search Enquiry", layout, margins=(200,100))
-
+window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 
 event, values = window.read(close=True)
 
-if event == 'Submit':
-  print('The events was ', event, 'You input', values['-userGR-'])
-else:
-  print('User cancelled')
 
 # event loop
 while True:
     event, values = window.read()
-    # End program if user closes window or
-    # presses the OK button
-    if event == "OK" or event == sg.WIN_CLOSED:
+
+    if event == sg.WIN_CLOSED or event=="Exit" or event==["-CANCEL-"]:
+        print('User Cancelled')
         break
 
-window.close()
+    if event == ["-GRIDREF-"] and event == ["-Radius-"]:
+        try:
+            point, buffer, buffer_feature = searcharea_frompoint(["-EASTING-"], ["-NORTHING-"], ["-RADIUS-"])
+
+        except:
+            print('There was an error')
+
+
+    if event==["-SHPFILE-"] and event==["-Radius-"]:
+        try:
+            point, buffer, buffer_feature = searcharea_frompoly(["-SHPFILE-"], ["-RADIUS-"])
+
+        except:
+            print('There was an error')
+
+
