@@ -208,11 +208,11 @@ event, values = window.read(close=True)
 while True:
     event, values = window.read()
 
-    if event == sg.WIN_CLOSED or event=="Exit" or event==["-CANCEL-"]:
+    if event == sg.WIN_CLOSED or event=="Exit": #or event=="-CANCEL-":
         print('User Cancelled')
         break
 
-    if event == ["-GRIDREF-"] and event == ["-Radius-"]:
+    if event == "-GRIDREF-" and event == "-Radius-":
         try:
             point, buffer, buffer_feature = searcharea_frompoint(["-EASTING-"], ["-NORTHING-"], ["-RADIUS-"])
 
@@ -220,7 +220,7 @@ while True:
             print('There was an error')
 
 
-    if event==["-SHPFILE-"] and event==["-Radius-"]:
+    if event=="-SHPFILE-" and event=="-Radius-":
         try:
             point, buffer, buffer_feature = searcharea_frompoly(["-SHPFILE-"], ["-RADIUS-"])
 
@@ -228,3 +228,11 @@ while True:
             print('There was an error')
 
 
+    if values["-SPP-"]==True and event=="-PROCEED-":
+        try:
+            sppSearch, sppOutput = searchSpecies()
+            plotPS100
+            plt.show();
+            window.close()
+        except:
+            print("there was an issue")
