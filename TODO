@@ -5,5 +5,9 @@
 - [] finish gui
 - [] debug ax labels
 - [] invasive species - upload sample data and update function to work on new variables
+- [] labels for sites
 
-gui:
+
+gui thoughts
+ - add plot statements into new function and call elements of function based on checkboxes when pressing run in the gui hopefully should only plot the required 
+ features based on selection from gui dialogue.
