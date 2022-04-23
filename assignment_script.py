@@ -55,10 +55,10 @@ def searchSpecies():
     spp1kmSearch = species1kmlayer[species1kmlayer.intersects(buffer_feature, align=True)]
 
     # Concatenate the 1km and <=100m species records search results
-    sppSearch = pd.concat([sppSearch, spp1kmSearch])
+    sppConcat = pd.concat([sppSearch, spp1kmSearch])
 
     # Remove extraneous columns for GDPR
-    sppOutput = sppSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+    sppOutput = sppConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
                            'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
@@ -86,7 +86,7 @@ def searchGCNs():
     function to carry out a Great Crested Newt search based on input parameters
     """
     df = specieslayer
-    gcnrecs = df[(df['InformalGr'] == 'amphibian') & df['CommonName'] == 'Great Crested Newt']
+    gcnrecs = df[df['CommonName'] == 'Great Crested Newt']
     gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
 
     # Remove extraneous columns for GDPR
@@ -127,8 +127,6 @@ def searchSites():
     return sbiIntersect, basIntersect
 
 
-
-
 ### main program ###
 
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
@@ -149,10 +147,10 @@ sppSearch, sppOutput = searchSpecies()
 sbiIntersect, basIntersect = searchSites()
 
 # Calls bat only search
-batSearch = searchBats()
+batSearch, batOutput = searchBats()
 
 # Calls GCN only search
-gcnSearch = searchGCNs()
+gcnSearch, gcnOutput = searchGCNs()
 
 #Call
 
@@ -196,20 +194,17 @@ column2 = [[sg.Text("Select Search parameters")],
            [sg.Checkbox('Sites', default=False, key="-SITES-")]]
 
 layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
-          [sg.Button('Proceed', key=("-PROCEED-")), sg.Button('Cancel', key=("-CANCEL-"))]]
+          [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
 
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
-
-event, values = window.read(close=True)
-
 
 # event loop
 while True:
     event, values = window.read()
 
-    if event == sg.WIN_CLOSED or event=="Exit": #or event=="-CANCEL-":
-        print('User Cancelled')
+    if event == sg.WIN_CLOSED or event=="-CANCEL-":
+        print('User cancelled')
         break
 
     if event == "-GRIDREF-" and event == "-Radius-":
@@ -220,19 +215,20 @@ while True:
             print('There was an error')
 
 
-    if event=="-SHPFILE-" and event=="-Radius-":
+    if event == "-BDYFILE-" and event == "-Radius-":
         try:
-            point, buffer, buffer_feature = searcharea_frompoly(["-SHPFILE-"], ["-RADIUS-"])
+            point, buffer, buffer_feature = searcharea_frompoly(["-BDYFILE-"], ["-RADIUS-"])
+            print('bdy, buffer created successfully')
 
         except:
             print('There was an error')
 
 
-    if values["-SPP-"]==True and event=="-PROCEED-":
+    if values["-SPP-"] == True and event == "-PROCEED-":
         try:
-            sppSearch, sppOutput = searchSpecies()
-            plotPS100
+            sppSearch, sppOutput = searchSpecies
+            sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
             plt.show();
-            window.close()
+
         except:
             print("there was an issue")
