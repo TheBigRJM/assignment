@@ -27,10 +27,10 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     buffer_area value is in metres
     """
 
-    pointGeom = Point(xin, yin)
-    bufferGeom = pointGeom.buffer(buffer_radius, resolution=50)
+    userpoint = Point(xin, yin) # shapely feature
+    bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely feature for running search
 
-    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True)
+    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True) # convert to geoseries for mapping
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
 
     return userfeat, userbuffer, bufferGeom
@@ -38,8 +38,9 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
-    userfeat = gpd.read_file(user_polypath)
-    userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
+    userfile = gpd.read_file(user_polypath)
+    userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))
+    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuffer))
     bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
 
     return userfeat, userbuffer, bufferGeom

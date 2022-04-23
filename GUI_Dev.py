@@ -6,9 +6,10 @@ import PySimpleGUI as sg
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
-           [sg.Text("Grid Reference"), sg.Input('Easting', key="-EASTING-"), sg.Input('Northing', key="-NORTHING-"),
-            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-", enable_events=True), sg.FileBrowse()],
-           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)]]
+           [sg.Text("Grid Reference"), sg.Input(key="-EASTING-"), sg.Input(key="-NORTHING-"),
+            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-", enable_events=False), sg.FileBrowse()],
+           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=False)],
+           [sg.Text("", key="-DIALOGUE-")]]
 
 
 column2 = [[sg.Text("Select Search parameters")],
@@ -27,12 +28,12 @@ window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
-    userfeat = gpd.read_file(user_polypath)
-    userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius))
+    userfile = gpd.read_file(user_polypath)
+    userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))
+    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuffer))
     bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
 
-    return userfeat, userbuffer, bufferGeom
-
+    return userfile, userbuffer, bufferGeom
 def searchSpecies():
     """
     function to carry out a species search based on input parameters
@@ -68,27 +69,22 @@ while True:
     buffer_radius =  values["-RADIUS-"]
 
 
-    if values"-EASTING-" and  values"-NORTHING-" and values"-RADIUS-":
-            #point, buffer, buffer_feature = searcharea_frompoint(user_polypath, buffer_radius)
-            print('point and buffer selected')
+    if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
+            buffer_radius = float(values["-RADIUS-"])
+            point, buffer, buffer_feature = searcharea_frompoint(user_polypath, buffer_radius)
+            window["-DIALOGUE-"].update('point and buffer selected')
 
-    elif values["-BDYFILE-"] and values["-RADIUS-"]:
-            #point, buffer, buffer_feature = searcharea_frompoly(window["-BDYFILE-"], window["-RADIUS-"])
-            #sg.popup('values input')
-            print('polygon and buffer selected')
+    elif values["-BDYFILE-"] and values["-RADIUS-"] and event == "-PROCEED-":
+            buffer_radius = float(values["-RADIUS-"])
+            point, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+            window["-DIALOGUE-"].update('polygon and buffer selected')
 
     else:
         print('search area required')
 
-    user_polypath = values["-BDYFILE-"]
-    buffer_radius = values["-RADIUS-"]
 
+    if values["-SPP-"] and event == "-PROCEED-":
+            sppSearch, sppOutput = searchSpecies()
 
-
-    if values["-SPP-"] == True and event == "-PROCEED-":
-        try:
-            sppSearch, sppOutput = searchSpecies
-            searchSpecies()
-
-        except:
+    else:
             print("there was an issue")
