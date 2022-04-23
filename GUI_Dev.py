@@ -29,11 +29,13 @@ def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
     userfile = gpd.read_file(user_polypath)
-    userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))
-    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuffer))
+    userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius))
+    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuff))
     bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
 
     return userfile, userbuffer, bufferGeom
+
+
 def searchSpecies():
     """
     function to carry out a species search based on input parameters
@@ -54,6 +56,14 @@ def searchSpecies():
                            'Easting', 'Northing', 'Precision']]
 
     return sppSearch, sppOutput
+
+# Load files to search on
+dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
+specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
+species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
+sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
+baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
+
 
 # event loop
 while True:
@@ -76,7 +86,7 @@ while True:
 
     elif values["-BDYFILE-"] and values["-RADIUS-"] and event == "-PROCEED-":
             buffer_radius = float(values["-RADIUS-"])
-            point, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+            userpoly, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
             window["-DIALOGUE-"].update('polygon and buffer selected')
 
     else:

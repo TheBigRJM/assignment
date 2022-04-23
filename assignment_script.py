@@ -139,7 +139,7 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
 # Create point and buffer using user defined co-ordinates & buffer feature for interrogation
-#point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
+point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
 
 # Calls all species search
 sppSearch, sppOutput = searchSpecies()
@@ -158,7 +158,7 @@ gcnSearch, gcnOutput = searchGCNs()
 # Create an empty plot
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
-
+# Note: set this as separate function to call last
 plotBuffer = buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
 plotPoint = point.plot(ax=ax, marker='*', color='red', markersize=2) # adapt to accept user defined variable from GUI
 plotSBI = sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
