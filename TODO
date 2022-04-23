@@ -6,6 +6,9 @@
 - [] debug ax labels
 - [] invasive species - upload sample data and update function to work on new variables
 - [] labels for sites
+- [] Legend
+- [] Save map outputs
+- [] edit gui to only accept shp files from browser
 
 
 gui thoughts
