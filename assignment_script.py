@@ -138,7 +138,7 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
 # Create point and buffer using user defined co-ordinates & buffer feature for interrogation
-point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
+#point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
 
 # Calls all species search
 sppSearch, sppOutput = searchSpecies()
@@ -199,7 +199,8 @@ layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 
-# event loop
+
+# GUI event loop
 while True:
     event, values = window.read()
 
@@ -209,7 +210,8 @@ while True:
 
     if event == "-GRIDREF-" and event == "-Radius-":
         try:
-            point, buffer, buffer_feature = searcharea_frompoint(["-EASTING-"], ["-NORTHING-"], ["-RADIUS-"])
+            point, buffer, buffer_feature = searcharea_frompoint(values["-EASTING-"], values["-NORTHING-"],
+            values["-RADIUS-"])
 
         except:
             print('There was an error')
@@ -217,7 +219,7 @@ while True:
 
     if event == "-BDYFILE-" and event == "-Radius-":
         try:
-            point, buffer, buffer_feature = searcharea_frompoly(["-BDYFILE-"], ["-RADIUS-"])
+            point, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], values["-RADIUS-"])
             print('bdy, buffer created successfully')
 
         except:
