@@ -220,10 +220,9 @@ while True:
             northing = float(values["-NORTHING-"])
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                point.plot(ax=ax, marker='*', color='red', markersize=10) # TODO bugfix point not displaying in map axis
                 userbuffer.plot(ax=ax, color='white', edgecolor='black')
-            else:
-                continue
+                point.plot(ax=ax, marker='*', color='red', markersize=20)
+
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
