@@ -5,7 +5,7 @@ import geopandas as gpd
 import cartopy.crs as ccrs
 from cartopy.feature import ShapelyFeature
 import matplotlib.pyplot as plt
-from shapely.geometry import Point, LineString, Polygon
+from shapely.geometry import Point, LineString, Polygon, LinearRing
 import PySimpleGUI as sg
 
 
@@ -56,13 +56,17 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
-    userfile = gpd.read_file(user_polypath)
-    userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius))
-    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuff))
-    bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
+    userfile = gpd.read_file(user_polypath) # import user selected file
+    userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius)) # buffer user file with user input buffer
+    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuff)) # transform buffer to geoseries
+    bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS) # convert to shapely feature. INCORRECT FORMAT FOR INTERSECTS
 
     return userfile, userbuffer, bufferGeom
 
+
+def coord_lister(geom):
+    coords = list(geom.exterior.coords)
+    return (coords)
 
 def searchSpecies():
     """
@@ -85,6 +89,8 @@ def searchSpecies():
 
     return sppSearch, sppOutput
 
+
+
 # Load files to search on
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
@@ -94,7 +100,9 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
-# event loop
+
+
+# GUI event loop
 while True:
     event, values = window.read()
     print(values)
@@ -110,7 +118,7 @@ while True:
 
     if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
             buffer_radius = float(values["-RADIUS-"])
-            point, buffer, buffer_feature = searcharea_frompoint(Grid_Reference, buffer_radius)
+            point, buffer, buffer_feature = searcharea_frompoint(values["-EASTING-"], values["-NORTHING-"], buffer_radius)
             window["-DIALOGUE-"].update('point and buffer selected')
 
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
