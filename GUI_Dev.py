@@ -210,6 +210,8 @@ while True:
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
+# TODO: Add basemap to axis
+
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('Point and buffer selected')
@@ -218,8 +220,8 @@ while True:
             northing = float(values["-NORTHING-"])
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                point.plot(ax=ax, marker='*', color='red', markersize=4) # TODO bugfix point not displaying in map axis
-                userbuffer.plot(ax=ax, edgecolor='black')
+                point.plot(ax=ax, marker='*', color='red', markersize=10) # TODO bugfix point not displaying in map axis
+                userbuffer.plot(ax=ax, color='white', edgecolor='black')
             else:
                 continue
 
