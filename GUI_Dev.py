@@ -45,8 +45,8 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     buffer_area value is in metres
     """
 
-    userpoint = Point(xin, yin) # shapely feature
-    bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely feature for running search
+    userpoint = Point(xin, yin) # shapely geometry
+    bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely geometry for running search
 
     userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True) # convert to geoseries for mapping
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
