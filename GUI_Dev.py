@@ -278,7 +278,7 @@ while True:
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
 
-# Search for sites and species only
+# Search for sites and species
     if values["-SITES-"] and values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppOutput = searchSpecies()
         sbiIntersect, basIntersect = searchSites()
