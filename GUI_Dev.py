@@ -173,7 +173,30 @@ def searchSites():
 
     return sbiIntersect, basIntersect
 
+#def savetoexcel():
 
+def plotmap():
+    ''''''
+
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+
+
+
+    plotBuffer = userbuffer.plot(ax=ax, color='white', edgecolor='black')
+    plotPoint = point.plot(ax=ax, marker='*', color='red',markersize=2)
+    plotUserPoly = userpoly.plot(ax=ax, color='black', alpha=0.5)
+    plotSBI = sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+    plotBAS = basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+    plotPS100 = sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+    plotbats = batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
+    plotGCN = gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+
+    gridlines = ax.gridlines(draw_labels=True,
+                             xlocs=range(360000, 430000, 1000),
+                             ylocs=range(270000, 370000, 1000))
+
+    plotexport = plt.show();
+    return plotexport
 
 
 
