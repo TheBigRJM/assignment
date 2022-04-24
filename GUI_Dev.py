@@ -22,8 +22,8 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), s
             sg.Input(key="-BDYFILE-", enable_events=True),
             sg.FileBrowse()],
            [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)],
-           [sg.Text("Please specify a search area", key="-DIALOGUE-")],
-           [sg.Text("Please specify search criteria", key="-SEARCHSTATUS-")]]
+           [sg.Text("Please specify a search area", key="-DIALOGUE-", enable_events=True)],
+           [sg.Text("Please specify search criteria", key="-SEARCHSTATUS-", enable_events=True)]]
 
 
 column2 = [[sg.Text("Select Search parameters")],
@@ -211,6 +211,7 @@ while True:
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
 # TODO: Add basemap to axis
+# TODO: biugfix dialogue messages prompting user for input and parameter selection
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
@@ -220,7 +221,7 @@ while True:
             northing = float(values["-NORTHING-"])
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                userbuffer.plot(ax=ax, color='white', edgecolor='black')
+                userbuffer.plot(ax=ax, color='none', edgecolor='black')
                 point.plot(ax=ax, marker='*', color='red', markersize=20)
 
 
@@ -252,6 +253,7 @@ while True:
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
         gcnSearch, gcnOutput = searchGCNs()
+        gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     elif values["-GCN-"]:
@@ -266,6 +268,7 @@ while True:
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
         batSearch, batOutput = searchBats()
+        batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     elif values["-BATS-"]:
@@ -292,9 +295,11 @@ while True:
 #        else:
 #            window["-SEARCHSTATUS-"].update('There was an issue')
 
-    # Search for sites species only
+    # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
         sbiIntersect, basIntersect = searchSites()
+        sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+        basIntersect.plot(ax=ax, color='blue', alpha=0.5)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     elif values["-SITES-"]:
