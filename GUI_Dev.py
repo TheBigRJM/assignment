@@ -62,6 +62,7 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
+# TODO: bugfix the file conversion to run intersects between polybuffer and target data
 
     userfile = gpd.read_file(user_polypath) # import user selected file
     userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius)) # buffer user file with user input buffer
@@ -206,6 +207,7 @@ while True:
 # TODO: add if statement to check and prompt the enquiry number
 #   and reference for map title and filesaving
 
+    # Only call map when proceed has been pressed
     if event == "-PROCEED-":
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
