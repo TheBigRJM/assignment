@@ -1,14 +1,23 @@
+import numpy as np
+import pandas as pd
+import rasterio as rio
+import geopandas as gpd
+import cartopy.crs as ccrs
+from cartopy.feature import ShapelyFeature
+import matplotlib.pyplot as plt
+from shapely.geometry import Point, LineString, Polygon
 import PySimpleGUI as sg
-##### GUI #####
 
+
+##### GUI #####
 # Create GUI layout elements and structure
 
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
            [sg.Text("Grid Reference"), sg.Input(key="-EASTING-"), sg.Input(key="-NORTHING-"),
-            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-", enable_events=False), sg.FileBrowse()],
-           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=False)],
+            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-", enable_events=True), sg.FileBrowse()],
+           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)],
            [sg.Text("", key="-DIALOGUE-")]]
 
 
@@ -24,6 +33,25 @@ layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
 
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
+
+# Declare GUI functions
+def searcharea_frompoint(xin, yin, buffer_radius):
+
+    """
+    Creates a point and buffer based on the user inputted arguments.
+
+    point_x and point_y require pure easting and northing values.
+
+    buffer_area value is in metres
+    """
+
+    userpoint = Point(xin, yin) # shapely feature
+    bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely feature for running search
+
+    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True) # convert to geoseries for mapping
+    userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
+
+    return userfeat, userbuffer, bufferGeom
 
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
@@ -64,6 +92,7 @@ species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
 sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
+myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
 # event loop
 while True:
@@ -81,10 +110,10 @@ while True:
 
     if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
             buffer_radius = float(values["-RADIUS-"])
-            point, buffer, buffer_feature = searcharea_frompoint(user_polypath, buffer_radius)
+            point, buffer, buffer_feature = searcharea_frompoint(Grid_Reference, buffer_radius)
             window["-DIALOGUE-"].update('point and buffer selected')
 
-    elif values["-BDYFILE-"] and values["-RADIUS-"] and event == "-PROCEED-":
+    elif values["-BDYFILE-"] and values["-RADIUS-"]:
             buffer_radius = float(values["-RADIUS-"])
             userpoly, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
             window["-DIALOGUE-"].update('polygon and buffer selected')

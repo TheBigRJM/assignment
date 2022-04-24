@@ -14,7 +14,6 @@ import cartopy.crs as ccrs
 from cartopy.feature import ShapelyFeature
 import matplotlib.pyplot as plt
 from shapely.geometry import Point, LineString, Polygon
-import PySimpleGUI as sg
 
 
 def searcharea_frompoint(xin, yin, buffer_radius):
@@ -43,7 +42,7 @@ def searcharea_frompoly(user_polypath, buffer_radius):
     userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuffer))
     bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS)
 
-    return userfeat, userbuffer, bufferGeom
+    return userfile, userbuffer, bufferGeom
 
 def searchSpecies():
     """
@@ -139,7 +138,10 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
 # Create point and buffer using user defined co-ordinates & buffer feature for interrogation
-point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
+#point, buffer, buffer_feature = searcharea_frompoint(385000.00, 335000.00, 2000)
+# from polygon
+#userpoly, buffer, buffer_feature = \
+   # searcharea_frompoly("D:/UlsterProgramming/assignment/SampleData/SHP/ExampleBoundarySearch_region.shp", 2000)
 
 # Calls all species search
 sppSearch, sppOutput = searchSpecies()
@@ -161,6 +163,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)
 # Note: set this as separate function to call last
 plotBuffer = buffer.plot(ax=ax, color='white', edgecolor='black') # adapt to accept user defined variable from GUI
 plotPoint = point.plot(ax=ax, marker='*', color='red', markersize=2) # adapt to accept user defined variable from GUI
+#plotUserPoly = userpoly.plot(ax=ax, color='black', alpha=0.5)
 plotSBI = sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
 plotBAS = basIntersect.plot(ax=ax, color='blue', alpha=0.5)
 plotPS100 = sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
@@ -172,66 +175,3 @@ gridlines = ax.gridlines(draw_labels=True,
                          ylocs=range(270000,370000,1000))
 
 plt.show();
-
-
-
-##### GUI #####
-
-# Create GUI layout elements and structure
-
-column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
-           [sg.Text("----------------------------------------")],
-           [sg.Text("Search from Grid Reference or Shapefile")],
-           [sg.Text("Grid Reference"), sg.Input('Easting', key="-EASTING-"), sg.Input('Northing', key="-NORTHING-"),
-            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-"), sg.FileBrowse()],
-           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-")]]
-
-
-column2 = [[sg.Text("Select Search parameters")],
-           [sg.Checkbox('Species', default=False, key="-SPP-")],
-           [sg.Checkbox('Bats only', default=False, key="-BATS-")],
-           [sg.Checkbox('GCN only', default=False, key="-GCN-")],
-           [sg.Checkbox('Invasives', default=False, key="-INV-")],
-           [sg.Checkbox('Sites', default=False, key="-SITES-")]]
-
-layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
-          [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
-
-# put gui elements in a window
-window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
-
-
-# GUI event loop
-while True:
-    event, values = window.read()
-
-    if event == sg.WIN_CLOSED or event=="-CANCEL-":
-        print('User cancelled')
-        break
-
-    if event == "-GRIDREF-" and event == "-Radius-":
-        try:
-            point, buffer, buffer_feature = searcharea_frompoint(values["-EASTING-"], values["-NORTHING-"],
-            values["-RADIUS-"])
-
-        except:
-            print('There was an error')
-
-
-    if event == "-BDYFILE-" and event == "-Radius-":
-        try:
-            point, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], values["-RADIUS-"])
-            print('bdy, buffer created successfully')
-
-        except:
-            print('There was an error')
-
-
-    if values["-SPP-"] == True and event == "-PROCEED-":
-        try:
-            sppSearch, sppOutput = searchSpecies
-            sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-            plt.show();
-
-        except:
-            print("there was an issue")
