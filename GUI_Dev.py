@@ -187,7 +187,7 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 
 # Setup parameters
-myCRS = ccrs.epsg(27700) # to matches with the CRS of datafiles
+myCRS = ccrs.epsg(27700) # Matches the CRS of datafiles
 # create empy axis
 fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
@@ -212,7 +212,7 @@ while True:
             northing = float(values["-NORTHING-"])
             point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
             point.plot(ax=ax, marker='*', color='red', markersize=2)
-            userbuffer.plot(ax=ax, color='white', edgecolor='black')
+            userbuffer.plot(ax=ax, edgecolor='black')
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
