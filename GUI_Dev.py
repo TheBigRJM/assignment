@@ -31,7 +31,8 @@ column2 = [[sg.Text("Select Search parameters")],
            [sg.Checkbox('Bats only', default=False, key="-BATS-", enable_events=True)],
            [sg.Checkbox('GCN only', default=False, key="-GCN-", enable_events=True)],
            [sg.Checkbox('Invasives', default=False, key="-INV-", enable_events=True)],
-           [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)]]
+           [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)],
+           [sg.Checkbox('Species and Sites', default=False, key="-SITESSPP-", enable_events=True)]]
 
 layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
@@ -175,29 +176,6 @@ def searchSites():
 
 #def savetoexcel():
 
-def plotmap():
-    ''''''
-
-    fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
-
-
-
-    plotBuffer = userbuffer.plot(ax=ax, color='white', edgecolor='black')
-    plotPoint = point.plot(ax=ax, marker='*', color='red',markersize=2)
-    plotUserPoly = userpoly.plot(ax=ax, color='black', alpha=0.5)
-    plotSBI = sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
-    plotBAS = basIntersect.plot(ax=ax, color='blue', alpha=0.5)
-    plotPS100 = sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-    plotbats = batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
-    plotGCN = gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
-
-    gridlines = ax.gridlines(draw_labels=True,
-                             xlocs=range(360000, 430000, 1000),
-                             ylocs=range(270000, 370000, 1000))
-
-    plotexport = plt.show();
-    return plotexport
-
 
 
 # Load files to carry out searches on
@@ -207,8 +185,11 @@ species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
 sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
-myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
+# Setup parameters
+myCRS = ccrs.epsg(27700) # to matches with the CRS of datafiles
+# create empy axis
+fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
 
 
@@ -218,20 +199,22 @@ while True:
     event, values = window.read()
     print(values)
 
-# Window close loop
+    # Window close loop
     if event == sg.WIN_CLOSED or event=="-CANCEL-":
         print('User cancelled')
         break
 
-# Create buffer from user specified point
+    # Create buffer from user specified point
     if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('Point and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
             easting = float(values["-EASTING-"])
             northing = float(values["-NORTHING-"])
             point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
+            point.plot(ax=ax, marker='*', color='red', markersize=2)
+            userbuffer.plot(ax=ax, color='white', edgecolor='black')
 
-# Create buffer from user specified polygon
+    # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('polygon and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
@@ -241,9 +224,10 @@ while True:
         window["-DIALOGUE-"].update('Please specify a search area')
 
 
-# Search for all species in user created buffer
+    # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
             sppSearch, sppOutput = searchSpecies()
+            sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
             window["-SEARCHSTATUS-"].update('Species search completed')
 
     elif values["-SPP-"]:
@@ -255,7 +239,7 @@ while True:
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
 
-# Search for GCN only
+    # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
         gcnSearch, gcnOutput = searchGCNs()
         window["-SEARCHSTATUS-"].update('Species search completed')
@@ -269,7 +253,7 @@ while True:
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
 
-# Search for Bats only
+    # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
         batSearch, batOutput = searchBats()
         window["-SEARCHSTATUS-"].update('Species search completed')
@@ -297,7 +281,7 @@ while True:
 #        else:
 #            window["-SEARCHSTATUS-"].update('There was an issue')
 
-# Search for sites species only
+    # Search for sites species only
     if values["-SITES-"] and event == "-PROCEED-":
         sbiIntersect, basIntersect = searchSites()
         window["-SEARCHSTATUS-"].update('Species search completed')
@@ -311,17 +295,17 @@ while True:
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
 
-# Search for sites and species
-    if values["-SITES-"] and values["-SPP-"] and event == "-PROCEED-":
+    # Search for sites and species
+    if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppOutput = searchSpecies()
         sbiIntersect, basIntersect = searchSites()
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
-    elif values["-SITES-"] and values["-SPP-"]:
+    elif values["-SITESSPP-"] and values["-SPP-"]:
         window["-SEARCHSTATUS-"].update('Site and species search selected')
 
     else:
-        if not values["-SITES-"]:
+        if not values["-SITESSPP-"]:
             window["-SEARCHSTATUS-"].update('Please specify search criteria')
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
