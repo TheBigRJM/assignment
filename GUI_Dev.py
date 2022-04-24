@@ -320,7 +320,7 @@ while True:
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
-    elif values["-SITESSPP-"] and values["-SPP-"]:
+    elif values["-SITESSPP-"]:
         window["-SEARCHSTATUS-"].update('Site and species search selected')
 
     else:
