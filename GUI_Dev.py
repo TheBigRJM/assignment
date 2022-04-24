@@ -189,8 +189,6 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 # Setup parameters
 myCRS = ccrs.epsg(27700) # Matches the CRS of datafiles
-# create empy axis
-
 
 
 
@@ -209,6 +207,7 @@ while True:
 
     # Only call map when proceed has been pressed
     if event == "-PROCEED-":
+        # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
     # Create buffer from user specified point
@@ -219,7 +218,7 @@ while True:
             northing = float(values["-NORTHING-"])
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                point.plot(ax=ax, marker='*', color='red', markersize=4)
+                point.plot(ax=ax, marker='*', color='red', markersize=4) # TODO bugfix point not displaying in map axis
                 userbuffer.plot(ax=ax, edgecolor='black')
             else:
                 continue
@@ -277,6 +276,7 @@ while True:
         else:
             window["-SEARCHSTATUS-"].update('There was an issue')
 
+# TODO: Import invasive layer and double check function to ensure this runs properly
 # Search for invasive species only
 #    if values["-INV-"] and event == "-PROCEED-":
 #        batSearch, batOutput = searchBats()
