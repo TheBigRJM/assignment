@@ -22,16 +22,16 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), s
             sg.Input(key="-BDYFILE-", enable_events=True),
             sg.FileBrowse()],
            [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)],
-           [sg.Text("", key="-DIALOGUE-")]
-           [sg.Text("", key="-SEARCHSTATUS-")]]
+           [sg.Text("Please specify a search area", key="-DIALOGUE-")],
+           [sg.Text("Please specify search criteria", key="-SEARCHSTATUS-")]]
 
 
 column2 = [[sg.Text("Select Search parameters")],
-           [sg.Checkbox('Species', default=False, key="-SPP-")],
-           [sg.Checkbox('Bats only', default=False, key="-BATS-")],
-           [sg.Checkbox('GCN only', default=False, key="-GCN-")],
-           [sg.Checkbox('Invasives', default=False, key="-INV-")],
-           [sg.Checkbox('Sites', default=False, key="-SITES-")]]
+           [sg.Checkbox('Species', default=False, key="-SPP-", enable_events=True)],
+           [sg.Checkbox('Bats only', default=False, key="-BATS-", enable_events=True)],
+           [sg.Checkbox('GCN only', default=False, key="-GCN-", enable_events=True)],
+           [sg.Checkbox('Invasives', default=False, key="-INV-", enable_events=True)],
+           [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)]]
 
 layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
@@ -102,9 +102,72 @@ def searchSpecies():
 
     return sppSearch, sppOutput
 
+def searchBats():
+    """
+    function to carry out a bats search based on input parameters
+    """
+
+    batrecs = specieslayer[specieslayer['InformalGr'] == 'mammal - bat']
+    batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
+
+    # Remove extraneous columns for GDPR
+    batOutput = batSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return batSearch, batOutput
+
+def searchGCNs():
+    """
+    function to carry out a Great Crested Newt search based on input parameters
+    """
+    df = specieslayer
+    gcnrecs = df[df['CommonName'] == 'Great Crested Newt']
+    gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
+
+    # Remove extraneous columns for GDPR
+    gcnOutput = gcnSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return gcnSearch, gcnOutput
 
 
-# Load files to search on
+def searchInvasive():
+    """
+    function to carry out an Invasive Species search based on input parameters
+    """
+    df = specieslayer
+    invrecs = df[(df['StatInvasive'] == 'Yes') & df['StaffsINNS'] == 'Yes']
+    invSearch = invrecs[invrecs.intersects(buffer_feature, align=True)]
+
+    invOutput = invSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
+                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Easting', 'Northing', 'Precision']]
+
+    return invSearch, invOutput
+
+
+def searchSites():
+    '''
+    function to carry out a nature conservation sites search based on input parameters
+    note the buffer must be a shapely geometry feature as intersecting two GeoDataFrames requires equal indexes
+    '''
+    sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
+    basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
+
+
+
+    return sbiIntersect, basIntersect
+
+
+
+
+
+# Load files to carry out searches on
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
 species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
@@ -115,36 +178,117 @@ myCRS = ccrs.epsg(27700) # note that this matches with the CRS of our image
 
 
 
+
+
 # GUI event loop
 while True:
     event, values = window.read()
     print(values)
 
+# Window close loop
     if event == sg.WIN_CLOSED or event=="-CANCEL-":
         print('User cancelled')
         break
 
-
+# Create buffer from user specified point
     if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('point and buffer selected')
+            window["-DIALOGUE-"].update('Point and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
             easting = float(values["-EASTING-"])
             northing = float(values["-NORTHING-"])
             point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
 
+# Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('polygon and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
             userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
 
-
     else:
-        print('search area required')
+        window["-DIALOGUE-"].update('Please specify a search area')
 
 
+# Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
             sppSearch, sppOutput = searchSpecies()
-            window["-SEARCHSTATUS-"].update('species search completed')
+            window["-SEARCHSTATUS-"].update('Species search completed')
+
+    elif values["-SPP-"]:
+            window["-SEARCHSTATUS-"].update('Species search selected')
 
     else:
-            print("there was an issue")
+        if not values["-SPP-"]:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+        else:
+            window["-SEARCHSTATUS-"].update('There was an issue')
+
+# Search for GCN only
+    if values["-GCN-"] and event == "-PROCEED-":
+        gcnSearch, gcnOutput = searchGCNs()
+        window["-SEARCHSTATUS-"].update('Species search completed')
+
+    elif values["-GCN-"]:
+            window["-SEARCHSTATUS-"].update('GCN search selected')
+
+    else:
+        if not values["-GCN-"]:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+        else:
+            window["-SEARCHSTATUS-"].update('There was an issue')
+
+# Search for Bats only
+    if values["-BATS-"] and event == "-PROCEED-":
+        batSearch, batOutput = searchBats()
+        window["-SEARCHSTATUS-"].update('Species search completed')
+
+    elif values["-BATS-"]:
+            window["-SEARCHSTATUS-"].update('Bat search selected')
+
+    else:
+        if not values["-BATS-"]:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+        else:
+            window["-SEARCHSTATUS-"].update('There was an issue')
+
+# Search for invasive species only
+#    if values["-INV-"] and event == "-PROCEED-":
+#        batSearch, batOutput = searchBats()
+#        window["-SEARCHSTATUS-"].update('Species search completed')
+#
+#   elif values["-INV-"]:
+#            window["-SEARCHSTATUS-"].update('Bat search selected')
+#
+#    else:
+#        if not values["-INV-"]:
+#            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+#        else:
+#            window["-SEARCHSTATUS-"].update('There was an issue')
+
+# Search for sites species only
+    if values["-SITES-"] and event == "-PROCEED-":
+        sbiIntersect, basIntersect = searchSites()
+        window["-SEARCHSTATUS-"].update('Species search completed')
+
+    elif values["-SITES-"]:
+            window["-SEARCHSTATUS-"].update('Sites only search selected')
+
+    else:
+        if not values["-SITES-"]:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+        else:
+            window["-SEARCHSTATUS-"].update('There was an issue')
+
+# Search for sites and species only
+    if values["-SITES-"] and values["-SPP-"] and event == "-PROCEED-":
+        sppSearch, sppOutput = searchSpecies()
+        sbiIntersect, basIntersect = searchSites()
+        window["-SEARCHSTATUS-"].update('Sites and species search completed')
+
+    elif values["-SITES-"] and values["-SPP-"]:
+        window["-SEARCHSTATUS-"].update('Site and species search selected')
+
+    else:
+        if not values["-SITES-"]:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
+        else:
+            window["-SEARCHSTATUS-"].update('There was an issue')
