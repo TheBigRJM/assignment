@@ -193,7 +193,6 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS)
 
 
 
-
 # GUI event loop
 while True:
     event, values = window.read()
@@ -205,14 +204,17 @@ while True:
         break
 
     # Create buffer from user specified point
-    if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
+    if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('Point and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
             easting = float(values["-EASTING-"])
             northing = float(values["-NORTHING-"])
-            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-            point.plot(ax=ax, marker='*', color='red', markersize=2)
-            userbuffer.plot(ax=ax, edgecolor='black')
+            if event == "-PROCEED-":
+                point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
+                point.plot(ax=ax, marker='*', color='red', markersize=4)
+                userbuffer.plot(ax=ax, edgecolor='black')
+            else:
+                continue
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
@@ -299,6 +301,9 @@ while True:
     if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppOutput = searchSpecies()
         sbiIntersect, basIntersect = searchSites()
+        sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+        basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+        sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
     elif values["-SITESSPP-"] and values["-SPP-"]:
