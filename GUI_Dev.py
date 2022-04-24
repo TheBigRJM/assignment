@@ -84,12 +84,13 @@ def searchSpecies():
     """
     function to carry out a species search based on input parameters
     """
-
+    df = specieslayer
+    df1km = species1kmlayer
     # Run search on spp records <= 100m precision
-    sppSearch = specieslayer[specieslayer.intersects(buffer_feature, align=True)]
+    sppSearch = df[df.intersects(buffer_feature, align=True)]
 
     # Run 1km data species search
-    spp1kmSearch = species1kmlayer[species1kmlayer.intersects(buffer_feature, align=True)]
+    spp1kmSearch = df1km[df1km.intersects(buffer_feature, align=True)]
 
     # Concatenate the 1km and <=100m species records search results
     sppConcat = pd.concat([sppSearch, spp1kmSearch])
@@ -106,12 +107,18 @@ def searchBats():
     """
     function to carry out a bats search based on input parameters
     """
-
-    batrecs = specieslayer[specieslayer['InformalGr'] == 'mammal - bat']
+    df = specieslayer
+    df1km = species1kmlayer
+    batrecs = df[df['InformalGr'] == 'mammal - bat']
     batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
 
+    batrecs1km = df1km[df1km['InformalGr'] == 'mammal - bat']
+    batsearch1km = batrecs1km[batrecs1km.intersects(buffer_feature, align=True)]
+
+    batConcat = pd.concat([batSearch, batsearch1km])
+
     # Remove extraneous columns for GDPR
-    batOutput = batSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+    batOutput = batConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
                            'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
@@ -123,11 +130,17 @@ def searchGCNs():
     function to carry out a Great Crested Newt search based on input parameters
     """
     df = specieslayer
+    df1km = species1kmlayer
     gcnrecs = df[df['CommonName'] == 'Great Crested Newt']
     gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
 
+    gcnrecs1km = df1km[df1km['CommonName'] == 'Great Crested Newt']
+    gcnsearch1km = gcnrecs1km[gcnrecs1km.intersects(buffer_feature, align=True)]
+
+    gcnConcat = pd.concat([gcnSearch, gcnsearch1km])
+
     # Remove extraneous columns for GDPR
-    gcnOutput = gcnSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+    gcnOutput = gcnConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
                            'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
@@ -140,8 +153,7 @@ def searchInvasive():
     function to carry out an Invasive Species search based on input parameters
     """
     df = specieslayer
-    invrecs = df[(df['StatInvasive'] == 'Yes') & df['StaffsINNS'] == 'Yes']
-    invSearch = invrecs[invrecs.intersects(buffer_feature, align=True)]
+    invSearch = df[df.intersects(buffer_feature, align=True)]
 
     invOutput = invSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
                            'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
@@ -158,8 +170,6 @@ def searchSites():
     '''
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
-
-
 
     return sbiIntersect, basIntersect
 
