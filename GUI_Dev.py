@@ -15,10 +15,15 @@ import PySimpleGUI as sg
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
-           [sg.Text("Grid Reference"), sg.Input(key="-EASTING-"), sg.Input(key="-NORTHING-"),
-            sg.Text('-OR-'), sg.Text("Shapefile"), sg.Input(key="-BDYFILE-", enable_events=True), sg.FileBrowse()],
+           [sg.Text("Grid Reference"),
+            sg.Input(key="-EASTING-", enable_events=True),
+            sg.Input(key="-NORTHING-", enable_events=True),
+            sg.Text('-OR-'), sg.Text("Shapefile"),
+            sg.Input(key="-BDYFILE-", enable_events=True),
+            sg.FileBrowse()],
            [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)],
-           [sg.Text("", key="-DIALOGUE-")]]
+           [sg.Text("", key="-DIALOGUE-")]
+           [sg.Text("", key="-SEARCHSTATUS-")]]
 
 
 column2 = [[sg.Text("Select Search parameters")],
@@ -56,9 +61,16 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
+
     userfile = gpd.read_file(user_polypath) # import user selected file
     userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius)) # buffer user file with user input buffer
     userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuff)) # transform buffer to geoseries
+
+    # Attempt to convert datatypes for polygon searches
+    #coordinates = userbuffer.geometry.apply(coord_lister)
+    #coordinates = coordinates.tolist()
+    #buffer_feature = Polygon(coordinates)
+
     bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS) # convert to shapely feature. INCORRECT FORMAT FOR INTERSECTS
 
     return userfile, userbuffer, bufferGeom
@@ -72,6 +84,7 @@ def searchSpecies():
     """
     function to carry out a species search based on input parameters
     """
+
     # Run search on spp records <= 100m precision
     sppSearch = specieslayer[specieslayer.intersects(buffer_feature, align=True)]
 
@@ -112,19 +125,18 @@ while True:
         break
 
 
-    user_polypath = values["-BDYFILE-"]
-    buffer_radius =  values["-RADIUS-"]
-
-
     if values["-EASTING-"] and  values["-NORTHING-"] and values["-RADIUS-"]:
-            buffer_radius = float(values["-RADIUS-"])
-            point, buffer, buffer_feature = searcharea_frompoint(values["-EASTING-"], values["-NORTHING-"], buffer_radius)
             window["-DIALOGUE-"].update('point and buffer selected')
+            buffer_radius = float(values["-RADIUS-"])
+            easting = float(values["-EASTING-"])
+            northing = float(values["-NORTHING-"])
+            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
 
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
-            buffer_radius = float(values["-RADIUS-"])
-            userpoly, buffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
             window["-DIALOGUE-"].update('polygon and buffer selected')
+            buffer_radius = float(values["-RADIUS-"])
+            userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+
 
     else:
         print('search area required')
@@ -132,6 +144,7 @@ while True:
 
     if values["-SPP-"] and event == "-PROCEED-":
             sppSearch, sppOutput = searchSpecies()
+            window["-SEARCHSTATUS-"].update('species search completed')
 
     else:
             print("there was an issue")
