@@ -189,7 +189,7 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 # Setup parameters
 myCRS = ccrs.epsg(27700) # Matches the CRS of datafiles
 # create empy axis
-fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+
 
 
 
@@ -199,9 +199,15 @@ while True:
     print(values)
 
     # Window close loop
-    if event == sg.WIN_CLOSED or event=="-CANCEL-":
+    if event == sg.WIN_CLOSED or event == "-CANCEL-":
         print('User cancelled')
         break
+
+# TODO: add if statement to check and prompt the enquiry number
+#   and reference for map title and filesaving
+
+    if event == "-PROCEED-":
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
