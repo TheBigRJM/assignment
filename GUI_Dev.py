@@ -6,6 +6,7 @@ import cartopy.crs as ccrs
 from cartopy.feature import ShapelyFeature
 import matplotlib.pyplot as plt
 from shapely.geometry import Point, LineString, Polygon, LinearRing
+from shapely.ops import unary_union
 import PySimpleGUI as sg
 
 
@@ -59,28 +60,19 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
     return userfeat, userbuffer, bufferGeom
 
+
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
 # TODO: bugfix the file conversion to run intersects between polybuffer and target data
 
     userfile = gpd.read_file(user_polypath) # import user selected file
-    userbuff = gpd.GeoSeries(userfile.buffer(buffer_radius)) # buffer user file with user input buffer
-    userbuffer = gpd.GeoDataFrame(geometry=gpd.GeoSeries(userbuff)) # transform buffer to geoseries
-
-    # Attempt to convert datatypes for polygon searches
-    #coordinates = userbuffer.geometry.apply(coord_lister)
-    #coordinates = coordinates.tolist()
-    #buffer_feature = Polygon(coordinates)
-
-    bufferGeom = ShapelyFeature(userbuffer['geometry'], myCRS) # convert to shapely feature. INCORRECT FORMAT FOR INTERSECTS
+    union = unary_union(userfile.geometry)
+    userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))  # buffer user file with user input buffer (for plotting)
+    bufferGeom = union.buffer(buffer_radius) # Create shapely geometry to carry out intersects
 
     return userfile, userbuffer, bufferGeom
 
-
-def coord_lister(geom):
-    coords = list(geom.exterior.coords)
-    return (coords)
 
 def searchSpecies():
     """
@@ -105,6 +97,7 @@ def searchSpecies():
 
     return sppSearch, sppOutput
 
+
 def searchBats():
     """
     function to carry out a bats search based on input parameters
@@ -126,6 +119,7 @@ def searchBats():
                            'Easting', 'Northing', 'Precision']]
 
     return batSearch, batOutput
+
 
 def searchGCNs():
     """
@@ -211,7 +205,7 @@ while True:
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
 # TODO: Add basemap to axis
-# TODO: biugfix dialogue messages prompting user for input and parameter selection
+# TODO: bugfix dialogue messages prompting user for input and parameter selection
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
@@ -219,6 +213,7 @@ while True:
             buffer_radius = float(values["-RADIUS-"])
             easting = float(values["-EASTING-"])
             northing = float(values["-NORTHING-"])
+
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
                 userbuffer.plot(ax=ax, color='none', edgecolor='black')
@@ -229,7 +224,12 @@ while True:
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('polygon and buffer selected')
             buffer_radius = float(values["-RADIUS-"])
-            userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+
+            if event == "-PROCEED-":
+                userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+                userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
+                userbuffer.plot(ax=ax, color='none', edgecolor='black')
+
 
     else:
         window["-DIALOGUE-"].update('Please specify a search area')
