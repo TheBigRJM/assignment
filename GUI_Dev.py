@@ -8,26 +8,32 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Point, LineString, Polygon, LinearRing
 from shapely.ops import unary_union
 import PySimpleGUI as sg
+import bng
 
 
 ##### GUI #####
 # Create GUI layout elements and structure
 
-column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.InputText(size=3, key="-ENQNO-"), ],
+column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.Text("/"),
+            sg.InputText(size=3, key="-ENQNO-")],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
-           [sg.Text("Grid Reference"),
-            sg.Input(key="-EASTING-", enable_events=True),
-            sg.Input(key="-NORTHING-", enable_events=True),
-            sg.Text('-OR-'), sg.Text("Shapefile"),
-            sg.Input(key="-BDYFILE-", enable_events=True),
+           [sg.Text("Easting/Northing"),
+            sg.Input(size=12, key="-EASTING-", enable_events=True),
+            sg.Input(size=12, key="-NORTHING-", enable_events=True)],
+            [sg.Text('-OR-')],
+            [sg.Text("BNG Grid Reference"),
+            sg.Input(size=12, key="-GRIDREF-", enable_events=True)],
+            [sg.Text('-OR-')],
+            [sg.Text("Shapefile"), sg.Input(size=30, key="-BDYFILE-", enable_events=True),
             sg.FileBrowse()],
-           [sg.Text("Search Radius (in metres)"), sg.Input(key="-RADIUS-", enable_events=True)],
-           [sg.Text("Please specify a search area", key="-DIALOGUE-", enable_events=True)],
-           [sg.Text("Please specify search criteria", key="-SEARCHSTATUS-", enable_events=True)]]
+            [sg.Text('-AND-')],
+           [sg.Text("Search Radius (in metres)"), sg.Input(size=12, key="-RADIUS-", enable_events=True)],
+           [sg.Text("Please specify a search area", text_color='red', key="-DIALOGUE-", enable_events=True)],
+           [sg.Text("Please specify search parameters", text_color='red', key="-SEARCHSTATUS-", enable_events=True)]]
 
 
-column2 = [[sg.Text("Select Search parameters")],
+column2 = [[sg.Text('Select search parameters')],
            [sg.Checkbox('Species', default=False, key="-SPP-", enable_events=True)],
            [sg.Checkbox('Bats only', default=False, key="-BATS-", enable_events=True)],
            [sg.Checkbox('GCN only', default=False, key="-GCN-", enable_events=True)],
@@ -35,7 +41,8 @@ column2 = [[sg.Text("Select Search parameters")],
            [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)],
            [sg.Checkbox('Species and Sites', default=False, key="-SITESSPP-", enable_events=True)]]
 
-layout = [[sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
+layout = [[sg.Text('Enquiry creator tool')],
+          [sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
 
 # put gui elements in a window
@@ -209,7 +216,7 @@ while True:
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('Point and buffer selected')
+            window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
             buffer_radius = float(values["-RADIUS-"])
             easting = float(values["-EASTING-"])
             northing = float(values["-NORTHING-"])
@@ -219,10 +226,22 @@ while True:
                 userbuffer.plot(ax=ax, color='none', edgecolor='black')
                 point.plot(ax=ax, marker='*', color='red', markersize=20)
 
+    # Create buffer from BNG grid reference
+    elif values["-GRIDREF-"] and values["-RADIUS-"]:
+            window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
+            buffer_radius = float(values["-RADIUS-"])
+            gridref = bng.to_osgb36(str(values["-GRIDREF-"]))
+            easting = gridref[0]
+            northing = gridref[1]
+
+            if event == "-PROCEED-":
+                point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
+                userbuffer.plot(ax=ax, color='none', edgecolor='black')
+                point.plot(ax=ax, marker='*', color='red', markersize=20)
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('polygon and buffer selected')
+            window["-DIALOGUE-"].update('polygon and buffer selected', text_color='green')
             buffer_radius = float(values["-RADIUS-"])
 
             if event == "-PROCEED-":
@@ -242,7 +261,7 @@ while True:
             window["-SEARCHSTATUS-"].update('Species search completed')
 
     elif values["-SPP-"]:
-            window["-SEARCHSTATUS-"].update('Species search selected')
+            window["-SEARCHSTATUS-"].update('Species search selected', text_color='green')
 
     else:
         if not values["-SPP-"]:
