@@ -176,6 +176,8 @@ def searchSites():
 
     return sbiIntersect, basIntersect
 
+
+
 #def savetoexcel():
 
 
@@ -211,6 +213,7 @@ while True:
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
 
+
 # TODO: Add basemap to axis
 # TODO: bugfix dialogue messages prompting user for input and parameter selection
 
@@ -230,9 +233,15 @@ while True:
     elif values["-GRIDREF-"] and values["-RADIUS-"]:
             window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
             buffer_radius = float(values["-RADIUS-"])
-            gridref = bng.to_osgb36(str(values["-GRIDREF-"]))
-            easting = gridref[0]
-            northing = gridref[1]
+            gridref = str(values["-GRIDREF-"])
+            if len(gridref) % 2 == 1: # Handle errors with grid reference lengths
+                sg.popup('not a valid grid reference length')
+                continue
+            else:
+                gridref = bng.to_osgb36(gridref)
+                easting = gridref[0]
+                northing = gridref[1]
+
 
             if event == "-PROCEED-":
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
@@ -249,25 +258,22 @@ while True:
                 userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
                 userbuffer.plot(ax=ax, color='none', edgecolor='black')
 
-
     else:
         window["-DIALOGUE-"].update('Please specify a search area')
 
 
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
-            sppSearch, sppOutput = searchSpecies()
-            sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-            window["-SEARCHSTATUS-"].update('Species search completed')
+        sppSearch, sppOutput = searchSpecies()
+        sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+        window["-SEARCHSTATUS-"].update('Species search completed')
 
-    elif values["-SPP-"]:
-            window["-SEARCHSTATUS-"].update('Species search selected', text_color='green')
+    if values["-SPP-"]:
+        window["-SEARCHSTATUS-"].update('Species search selected', text_color='green')
 
     else:
-        if not values["-SPP-"]:
-            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-        else:
-            window["-SEARCHSTATUS-"].update('There was an issue')
+        window["-SEARCHSTATUS-"].update('Please specify search parameters')
+
 
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
@@ -275,14 +281,12 @@ while True:
         gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    elif values["-GCN-"]:
-            window["-SEARCHSTATUS-"].update('GCN search selected')
+    if values["-GCN-"]:
+        window["-SEARCHSTATUS-"].update('GCN search selected')
 
     else:
-        if not values["-GCN-"]:
-            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-        else:
-            window["-SEARCHSTATUS-"].update('There was an issue')
+        window["-SEARCHSTATUS-"].update('Please specify search parameters')
+
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
@@ -290,14 +294,11 @@ while True:
         batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    elif values["-BATS-"]:
-            window["-SEARCHSTATUS-"].update('Bat search selected')
+    if values["-BATS-"]:
+        window["-SEARCHSTATUS-"].update('Bat search selected')
 
     else:
-        if not values["-BATS-"]:
-            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-        else:
-            window["-SEARCHSTATUS-"].update('There was an issue')
+        window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
 # TODO: Import invasive layer and double check function to ensure this runs properly
 # Search for invasive species only
@@ -321,14 +322,11 @@ while True:
         basIntersect.plot(ax=ax, color='blue', alpha=0.5)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    elif values["-SITES-"]:
+    if values["-SITES-"]:
             window["-SEARCHSTATUS-"].update('Sites only search selected')
 
     else:
-        if not values["-SITES-"]:
-            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-        else:
-            window["-SEARCHSTATUS-"].update('There was an issue')
+            window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
     # Search for sites and species
     if values["-SITESSPP-"] and event == "-PROCEED-":
@@ -339,11 +337,8 @@ while True:
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
-    elif values["-SITESSPP-"]:
+    if values["-SITESSPP-"]:
         window["-SEARCHSTATUS-"].update('Site and species search selected')
 
     else:
-        if not values["-SITESSPP-"]:
-            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-        else:
-            window["-SEARCHSTATUS-"].update('There was an issue')
+        window["-SEARCHSTATUS-"].update('Please specify search parameters')
