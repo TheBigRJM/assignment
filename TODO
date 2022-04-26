@@ -23,3 +23,4 @@ Further styl;e referencing, density of pattern etc: https://stackoverflow.com/qu
 matplotlib cheat sheet: https://matplotlib.org/cheatsheets/
 loading MapInfo data: https://stackoverflow.com/questions/22218069/how-to-load-mapinfo-file-into-geopandas
 guide to docstring elements: https://www.geeksforgeeks.org/python-docstrings/#:~:text=The%20doc%20string%20line%20should,the%20rest%20of%20the%20description.
+using OS API in python: https://github.com/OrdnanceSurvey/os-data-hub-api-tutorials/blob/master/tutorial-01-proptech/os-data-hub-api-tutorial-01-proptech.ipynb
