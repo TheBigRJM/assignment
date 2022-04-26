@@ -1,16 +1,23 @@
 - list of items still to do
 
-- [] basemap import or through opensource
+- [] basemap import or through opensource - openmap local from OS (
 - [] export dfs to excel sheets (work out whether these can be imported to templates)
 - [] finish gui
 - [] debug ax labels
 - [] invasive species - upload sample data and update function to work on new variables
 - [] labels for sites
 - [] Legend
-- [] Save map outputs
+- [] Save map
 - [] edit gui to only accept shp files from browser
+- [] species composite
+- [] select specific columns from sites search
+- [] finish docstrings for all delcred functions
+- [] scalebar on axis
+- [] handling multiple image tiles in background map - or use vector data and colour appropriately.
 
 
-gui thoughts
- - add plot statements into new function and call elements of function based on checkboxes when pressing run in the gui hopefully should only plot the required 
- features based on selection from gui dialogue.
+tips:
+line style reference: https://stackoverflow.com/questions/13359951/is-there-a-list-of-line-styles-in-matplotlib
+polygon style reference: https://matplotlib.org/3.5.0/gallery/shapes_and_collections/hatch_style_reference.html
+Further styl;e referencing, density of pattern etc: https://stackoverflow.com/questions/14325773/how-to-change-marker-border-width-and-hatch-width
+matplotlib cheat sheet: https://matplotlib.org/cheatsheets/
