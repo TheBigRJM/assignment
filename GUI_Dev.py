@@ -156,10 +156,19 @@ def searchInvasive():
     """
     function to carry out an Invasive Species search based on input parameters
     """
-    df = specieslayer
+    df = invasivespecies
+    df1km = invasivespecies1km
+    # Run search on invasive species records <= 100m precision
     invSearch = df[df.intersects(buffer_feature, align=True)]
 
-    invOutput = invSearch[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
+    # Run 1km data invasive species search
+    inv1kmSearch = df1km[df1km.intersects(buffer_feature, align=True)]
+
+    # Concatenate the 1km and <=100m invasive species records search results
+    invConcat = pd.concat([sppSearch, inv1kmSearch])
+
+    # Prepare output for excel export
+    invOutput = invConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
                            'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
@@ -189,7 +198,8 @@ specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
 species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
 sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
-
+invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
+invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
 
 # Setup parameters
 myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
@@ -312,18 +322,16 @@ while True:
 
 # TODO: Import invasive layer and double check function to ensure this runs properly
 # Search for invasive species only
-#    if values["-INV-"] and event == "-PROCEED-":
-#        batSearch, batOutput = searchBats()
-#        window["-SEARCHSTATUS-"].update('Species search completed')
-#
-#   elif values["-INV-"]:
-#            window["-SEARCHSTATUS-"].update('Bat search selected')
-#
-#    else:
-#        if not values["-INV-"]:
-#            window["-SEARCHSTATUS-"].update('Please specify search criteria')
-#        else:
-#            window["-SEARCHSTATUS-"].update('There was an issue')
+    if values["-INV-"] and event == "-PROCEED-":
+        invSearch, invOutput = searchInvasive()
+        invSearch.plot(ax=ax, marker='.', color='black')
+        window["-SEARCHSTATUS-"].update('Species search completed')
+
+    elif values["-INV-"]:
+            window["-SEARCHSTATUS-"].update('Bat search selected')
+
+    else:
+            window["-SEARCHSTATUS-"].update('Please specify search criteria')
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
@@ -342,7 +350,7 @@ while True:
     if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppOutput = searchSpecies()
         sbiIntersect, basIntersect = searchSites()
-        sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
+        sbiIntersect.plot(ax=ax, color='green', fill='...', alpha=0.5)
         basIntersect.plot(ax=ax, color='blue', alpha=0.5)
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
