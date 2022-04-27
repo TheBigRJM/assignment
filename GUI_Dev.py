@@ -18,6 +18,7 @@ import bng
 
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.Text("/"),
             sg.InputText(size=3, key="-ENQNO-")],
+           [sg.Text("Search area name:"), sg.InputText(size=50, key="-SITENAME-")],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
            [sg.Text("Easting/Northing"),
@@ -73,7 +74,6 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 def searcharea_frompoly(user_polypath, buffer_radius):
     """ """
 
-# TODO: bugfix the file conversion to run intersects between polybuffer and target data
 
     userfile = gpd.read_file(user_polypath) # import user selected file
     union = unary_union(userfile.geometry)
@@ -87,6 +87,7 @@ def searchSpecies():
     """
     function to carry out a species search based on input parameters
     """
+
     df = specieslayer
     df1km = species1kmlayer
     # Run search on spp records <= 100m precision
@@ -104,7 +105,7 @@ def searchSpecies():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    MapTitle = '"Site Name" species map'
+    MapTitle = 'species map'
 
     return sppSearch, sppOutput, MapTitle
 
@@ -129,7 +130,9 @@ def searchBats():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    return batSearch, batOutput
+    MapTitle = 'bats map'
+
+    return batSearch, batOutput, MapTitle
 
 
 def searchGCNs():
@@ -152,7 +155,9 @@ def searchGCNs():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    return gcnSearch, gcnOutput
+    MapTitle = 'Great Crested Newts map'
+
+    return gcnSearch, gcnOutput, MapTitle
 
 
 def searchInvasive():
@@ -178,7 +183,7 @@ def searchInvasive():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    return invSearch, invOutput
+    return invSearch, invOutput, MapTitle
 
 
 def searchSites():
@@ -191,7 +196,9 @@ def searchSites():
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
 
-    return sbiIntersect, basIntersect
+    MapTitle = 'nature conservation sites map'
+
+    return sbiIntersect, basIntersect, MapTitle
 
 
 
@@ -293,7 +300,7 @@ while True:
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppOutput, MapTitle = searchSpecies()
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-        plt.suptitle(MapTitle)
+        plt.suptitle(values["-SITENAME-"] + ' ' + MapTitle, fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SPP-"]:
@@ -307,6 +314,7 @@ while True:
     if values["-GCN-"] and event == "-PROCEED-":
         gcnSearch, gcnOutput = searchGCNs()
         gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+        plt.suptitle(values["-SITENAME-"] + MapTitle)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-GCN-"]:
@@ -320,6 +328,7 @@ while True:
     if values["-BATS-"] and event == "-PROCEED-":
         batSearch, batOutput = searchBats()
         batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
+        plt.suptitle(values["-SITENAME-"] + MapTitle)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-BATS-"]:
@@ -346,6 +355,7 @@ while True:
         sbiIntersect, basIntersect = searchSites()
         sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
         basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+        plt.suptitle(values["-SITENAME-"] + 'protected species and nature conservation sites map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SITES-"]:
