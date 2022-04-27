@@ -5,6 +5,7 @@ import geopandas as gpd
 import cartopy.crs as ccrs
 from cartopy.feature import ShapelyFeature
 import matplotlib.pyplot as plt
+from matplotlib_scalebar.scalebar import ScaleBar
 from shapely.geometry import Point, LineString, Polygon, LinearRing
 from shapely.ops import unary_union
 import PySimpleGUI as sg
@@ -191,7 +192,7 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 
 
 # Setup parameters
-myCRS = ccrs.epsg(27700) # Matches the CRS of datafiles
+myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
 
 
 
@@ -212,6 +213,15 @@ while True:
     if event == "-PROCEED-":
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+        ax.add_artist(ScaleBar(1))
+
+        # Create north arrow
+        # (source: https://stackoverflow.com/questions/58088841/how-to-add-a-north-arrow-on-a-geopandas-map)
+        x, y, arrow_length = 0.03, 0.98, 0.05
+        ax.annotate('N', xy=(x, y), xytext=(x, y - arrow_length),
+                    arrowprops=dict(facecolor='black', width=5, headwidth=15),
+                    ha='center', va='center', fontsize=15,
+                    xycoords=ax.transAxes)
 
 
 # TODO: Add basemap to axis
