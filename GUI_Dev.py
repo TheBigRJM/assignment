@@ -104,7 +104,9 @@ def searchSpecies():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    return sppSearch, sppOutput
+    MapTitle = '"Site Name" species map'
+
+    return sppSearch, sppOutput, MapTitle
 
 
 def searchBats():
@@ -197,7 +199,7 @@ def searchSites():
 
 
 
-# Load files to carry out searches on
+# Load files to search from
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
 species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
@@ -230,6 +232,7 @@ while True:
         #cx.add_basemap(ax, crs=myCRS)
         ax.add_artist(ScaleBar(1))
 
+
         # Create north arrow
         # (source: https://stackoverflow.com/questions/58088841/how-to-add-a-north-arrow-on-a-geopandas-map)
         x, y, arrow_length = 0.03, 0.98, 0.05
@@ -240,7 +243,6 @@ while True:
 
 
 # TODO: Add basemap to axis
-# TODO: bugfix dialogue messages prompting user for input and parameter selection
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
@@ -289,8 +291,9 @@ while True:
 
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
-        sppSearch, sppOutput = searchSpecies()
+        sppSearch, sppOutput, MapTitle = searchSpecies()
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+        plt.suptitle(MapTitle)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SPP-"]:
