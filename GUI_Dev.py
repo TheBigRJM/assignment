@@ -110,7 +110,10 @@ def searchSpecies():
     return sppSearch, sppConcat, sppOutput
 
 def sppstyle():
-    sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+    '''
+
+    :return:
+    '''
 
     mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
                        & ~(sppSearch['CommonName'] == 'Water Vole') & ~(sppSearch['CommonName'] == 'Eurasian Badger')]\
@@ -138,14 +141,17 @@ def sppstyle():
     crayfish = sppSearch[sppSearch['CommonName'] == 'White-clawed Freshwater Crayfish']\
         .plot(ax=ax, marker='P', color='deepskyblue', edgecolor='black')
 
-    plants = sppSearch[(sppSearch['InformalGr'] == 'flowering plant') & ~(sppSearch['ComonName'] == 'Bluebell')]\
+    plants = sppSearch[(sppSearch['InformalGr'] == 'flowering plant') & ~(sppSearch['CommonName'] == 'Bluebell')]\
         .plot(ax=ax, marker='v', color='none', edgecolor='green', linewidth=2)
 
     bluebell = sppSearch[sppSearch['CommonName'] == 'Bluebell']\
         .plot(ax=ax, marker='o', color='green', edgecolor='black')
 
-    spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other]
+    spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
 
+# TODO: add in way of catching zero result species + 'other' species
+
+#ignore below statement: for prototyping refining code only
     #for spptype in spptypes:
         #if spptype.empty == False:
             #spptype
