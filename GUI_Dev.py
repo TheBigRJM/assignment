@@ -65,7 +65,8 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     userpoint = Point(xin, yin) # shapely geometry
     bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely geometry for running search
 
-    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True) # convert to geoseries for mapping
+    # convert to geoseries for mapping in matplotlib
+    userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True)
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
 
     return userfeat, userbuffer, bufferGeom
@@ -99,15 +100,26 @@ def searchSpecies():
     # Concatenate the 1km and <=100m species records search results
     sppConcat = pd.concat([sppSearch, spp1kmSearch])
 
+    if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
+        for i, row in sppConcat.iterrows():
+            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(point)
+
+    elif values["-GRIDREF-"] and values["-RADIUS-"]:
+        for i, row in sppConcat.iterrows():
+            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(point)
+
+    elif values["-BDYFILE-"] and values["-RADIUS-"]:
+        for i, row in sppConcat.iterrows():
+            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(userpoly.geometry)
+
     # Remove extraneous columns for GDPR
     sppOutput = sppConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
-                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt', 'UKProt',
-                           'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'DistFRomSi', 'EuProt',
+                           'UKProt', 'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    #MapTitle = 'species map'
 
-    return sppSearch, sppOutput#, MapTitle
+    return sppSearch, sppConcat, sppOutput
 
 
 def searchBats():
@@ -236,7 +248,7 @@ while True:
     if event == "-PROCEED-": # Only call map when proceed has been pressed
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
-        #cx.add_basemap(ax, crs=myCRS)
+        #cx.add_basemap(ax, crs=specieslayer.crs, zoom=10) # add openstreetmap basemap using contextily
         ax.add_artist(ScaleBar(1))
 
 
@@ -298,7 +310,7 @@ while True:
 
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
-        sppSearch, sppOutput = searchSpecies()
+        sppSearch, sppConcat, sppOutput = searchSpecies()
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
