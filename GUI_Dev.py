@@ -4,10 +4,9 @@ import rasterio as rio
 import geopandas as gpd
 import cartopy.crs as ccrs
 import contextily as cx
-from cartopy.feature import ShapelyFeature
 import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
-from shapely.geometry import Point, LineString, Polygon, LinearRing
+from shapely.geometry import Point
 from shapely.ops import unary_union
 import PySimpleGUI as sg
 import bng
@@ -117,7 +116,7 @@ def sppstyle():
 
     mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
                        & ~(sppSearch['CommonName'] == 'Water Vole') & ~(sppSearch['CommonName'] == 'Eurasian Badger')]\
-        .plot(ax=ax, marker='^', color='none', edgecolor='red', linewidth=2)
+        .plot(ax=ax, marker='^', color='none', edgecolor='red', linewidth=2, markersize=2)
 
     otter = sppSearch[sppSearch['CommonName'] == 'Otter']\
         .plot(ax=ax, marker='^', color='red', edgecolor='black')
@@ -148,6 +147,8 @@ def sppstyle():
         .plot(ax=ax, marker='o', color='green', edgecolor='black')
 
     spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
+    spplabels =['mammal', 'Otter', 'Water Vole', 'Bats', 'birds', 'Amphibians and Reptiles', 'Great Crested Newt',
+                 'Freshwater White-clawed Crayfish', 'Plants', 'Bluebell']
 
 # TODO: add in way of catching zero result species + 'other' species
 
@@ -157,7 +158,7 @@ def sppstyle():
             #spptype
             #print(spptype)
 
-    return spptypes #mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other
+    return spptypes, spplabels #mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other
 
 def searchBats():
     """
@@ -348,8 +349,10 @@ while True:
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
-        sppstyle()
+        spptypes, spplabels = sppstyle()
         #sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+        leg = ax.legend(spptypes, spplabels, title='Legend', title_fontsize=14,
+                        fontsize=12, loc='upper left', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
