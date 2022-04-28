@@ -420,7 +420,8 @@ while True:
 
     # Search for sites and species
     if values["-SITESSPP-"] and event == "-PROCEED-":
-        sppSearch, sppOutput = searchSpecies()
+        sppSearch, sppConcat, sppOutput = searchSpecies()
+        spptypes, spplabels = sppstyle()
         sbiIntersect, basIntersect = searchSites()
         sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
         basIntersect.plot(ax=ax, color='blue', alpha=0.5)
