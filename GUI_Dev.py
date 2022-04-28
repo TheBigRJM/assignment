@@ -105,9 +105,9 @@ def searchSpecies():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    MapTitle = 'species map'
+    #MapTitle = 'species map'
 
-    return sppSearch, sppOutput, MapTitle
+    return sppSearch, sppOutput#, MapTitle
 
 
 def searchBats():
@@ -130,9 +130,9 @@ def searchBats():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    MapTitle = 'bats map'
+    #MapTitle = 'bats map'
 
-    return batSearch, batOutput, MapTitle
+    return batSearch, batOutput#, MapTitle
 
 
 def searchGCNs():
@@ -155,9 +155,9 @@ def searchGCNs():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    MapTitle = 'Great Crested Newts map'
+    #MapTitle = 'Great Crested Newts map'
 
-    return gcnSearch, gcnOutput, MapTitle
+    return gcnSearch, gcnOutput#, MapTitle
 
 
 def searchInvasive():
@@ -183,7 +183,7 @@ def searchInvasive():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    return invSearch, invOutput, MapTitle
+    return invSearch, invOutput
 
 
 def searchSites():
@@ -196,9 +196,9 @@ def searchSites():
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
 
-    MapTitle = 'nature conservation sites map'
+    #MapTitle = 'nature conservation sites map'
 
-    return sbiIntersect, basIntersect, MapTitle
+    return sbiIntersect, basIntersect#, MapTitle
 
 
 
@@ -298,9 +298,9 @@ while True:
 
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
-        sppSearch, sppOutput, MapTitle = searchSpecies()
+        sppSearch, sppOutput = searchSpecies()
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-        plt.suptitle(values["-SITENAME-"] + ' ' + MapTitle, fontsize=16)
+        plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SPP-"]:
@@ -314,7 +314,7 @@ while True:
     if values["-GCN-"] and event == "-PROCEED-":
         gcnSearch, gcnOutput = searchGCNs()
         gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
-        plt.suptitle(values["-SITENAME-"] + MapTitle)
+        plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-GCN-"]:
@@ -328,7 +328,7 @@ while True:
     if values["-BATS-"] and event == "-PROCEED-":
         batSearch, batOutput = searchBats()
         batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
-        plt.suptitle(values["-SITENAME-"] + MapTitle)
+        plt.suptitle(values["-SITENAME-"] + ' bats map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-BATS-"]:
@@ -355,7 +355,7 @@ while True:
         sbiIntersect, basIntersect = searchSites()
         sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
         basIntersect.plot(ax=ax, color='blue', alpha=0.5)
-        plt.suptitle(values["-SITENAME-"] + 'protected species and nature conservation sites map')
+        plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SITES-"]:
