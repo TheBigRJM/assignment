@@ -51,7 +51,7 @@ layout = [[sg.Text('Enquiry creator tool')],
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 
-# Declare GUI functions
+# Declare functions from within the GUI
 def searcharea_frompoint(xin, yin, buffer_radius):
 
     """
@@ -100,27 +100,58 @@ def searchSpecies():
     # Concatenate the 1km and <=100m species records search results
     sppConcat = pd.concat([sppSearch, spp1kmSearch])
 
-    if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
-        for i, row in sppConcat.iterrows():
-            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(point)
-
-    elif values["-GRIDREF-"] and values["-RADIUS-"]:
-        for i, row in sppConcat.iterrows():
-            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(point)
-
-    elif values["-BDYFILE-"] and values["-RADIUS-"]:
-        for i, row in sppConcat.iterrows():
-            sppConcat.loc[i, 'DistFromSi'] = row['geometry'].distance(userpoly.geometry)
-
     # Remove extraneous columns for GDPR
     sppOutput = sppConcat[['SciName', 'CommonName', 'InformalGr', 'Location', 'LocDetail', 'GridRef', 'Grid1km',
-                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'DistFRomSi', 'EuProt',
+                           'Date', 'Year', 'Source', 'SampleMeth', 'SexStage', 'RecType', 'EuProt',
                            'UKProt', 'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
 
     return sppSearch, sppConcat, sppOutput
 
+def sppstyle():
+    sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+
+    mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
+                       & ~(sppSearch['CommonName'] == 'Water Vole') & ~(sppSearch['CommonName'] == 'Eurasian Badger')]\
+        .plot(ax=ax, marker='^', color='none', edgecolor='red', linewidth=2)
+
+    otter = sppSearch[sppSearch['CommonName'] == 'Otter']\
+        .plot(ax=ax, marker='^', color='red', edgecolor='black')
+
+    wv = sppSearch[sppSearch['CommonName'] == 'Water Vole']\
+        .plot(ax=ax, marker='s', color='green', edgecolor='black')
+
+    bats = sppSearch[sppSearch['InformalGr'] == 'mammal - bat']\
+        .plot(ax=ax, marker='v', color='deepskyblue', edgecolor='black')
+
+    birds = sppSearch[sppSearch['InformalGr'] == 'bird']\
+        .plot(ax=ax, marker='v', color='deepskyblue', edgecolor='black')
+
+    amrep = sppSearch[(sppSearch['InformalGr'] == 'amphibian') & (sppSearch['InformalGr'] == 'reptile')
+                      & ~(sppSearch['CommonName'] == 'Great Crested Newt')]\
+        .plot(ax=ax, marker='s', color='none', edgecolor='deepskyblue', linewidth=2)
+
+    gcn = sppSearch[sppSearch['CommonName'] == 'Great Crested Newt']\
+        .plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+
+    crayfish = sppSearch[sppSearch['CommonName'] == 'White-clawed Freshwater Crayfish']\
+        .plot(ax=ax, marker='P', color='deepskyblue', edgecolor='black')
+
+    plants = sppSearch[(sppSearch['InformalGr'] == 'flowering plant') & ~(sppSearch['ComonName'] == 'Bluebell')]\
+        .plot(ax=ax, marker='v', color='none', edgecolor='green', linewidth=2)
+
+    bluebell = sppSearch[sppSearch['CommonName'] == 'Bluebell']\
+        .plot(ax=ax, marker='o', color='green', edgecolor='black')
+
+    spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other]
+
+    #for spptype in spptypes:
+        #if spptype.empty == False:
+            #spptype
+            #print(spptype)
+
+    return spptypes #mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other
 
 def searchBats():
     """
@@ -248,7 +279,7 @@ while True:
     if event == "-PROCEED-": # Only call map when proceed has been pressed
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
-        #cx.add_basemap(ax, crs=specieslayer.crs, zoom=10) # add openstreetmap basemap using contextily
+        #cx.add_basemap(ax = ax, crs='epsg:27700', url=cx.providers.OpenStreetMap.Mapnik, zoom=15) # add openstreetmap basemap using contextily
         ax.add_artist(ScaleBar(1))
 
 
@@ -311,7 +342,8 @@ while True:
     # Search for all species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
-        sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+        sppstyle()
+        #sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
