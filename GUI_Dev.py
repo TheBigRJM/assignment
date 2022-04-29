@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import rasterio as rio
+from rasterio.merge import merge
 import geopandas as gpd
 import cartopy.crs as ccrs
 import contextily as cx
@@ -10,7 +11,8 @@ from shapely.geometry import Point
 from shapely.ops import unary_union
 import PySimpleGUI as sg
 import bng
-
+from pathlib import Path
+import os
 
 ##### GUI #####
 # Create GUI layout elements and structure
@@ -51,6 +53,41 @@ layout = [[sg.Text('Enquiry creator tool')],
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 
 # Declare functions from within the GUI
+
+def rastermosaic():
+    '''
+    mosaic raster tiles to form the basemap for the map plot
+    :return:
+    '''
+
+    path = Path('SampleData/basemaps/') # folder path to basemap tifs
+    Path('output').mkdir(parents=True, exist_ok=True) # create output directory
+    output_path = 'output/' # assign output path to variable
+
+    raster_files = list(path.iterdir()) # iterate over the tifs in the directory
+    raster_to_mosiac = [] # create epy list to hold tif names
+
+    for p in raster_files: # loop through raster files in folder and append to one another in empty list defined above
+        raster = rio.open(p)
+        raster_to_mosiac.append(raster)
+
+    mosaic, output = merge(raster_to_mosiac) # Merge tifs in folder together using populated list
+
+    output_meta = raster.meta.copy() # create a copy of each rasters metadata
+
+    output_meta.update( # update the metadata values to match values of the mosaic
+        {"driver": "GTiff",
+        "height": mosaic.shape[1],
+        "width": mosaic.shape[2],
+        "transform": output,})
+
+    # write mosaic to folder
+    with rio.open(output_path, ** output_meta) as m:
+        m.write(mosaic)
+
+    return rastermosaic
+
+
 def searcharea_frompoint(xin, yin, buffer_radius):
 
     """
@@ -146,9 +183,10 @@ def sppstyle():
     bluebell = sppSearch[sppSearch['CommonName'] == 'Bluebell']\
         .plot(ax=ax, marker='o', color='green', edgecolor='black')
 
+
     spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
     spplabels =['mammal', 'Otter', 'Water Vole', 'Bats', 'birds', 'Amphibians and Reptiles', 'Great Crested Newt',
-                 'Freshwater White-clawed Crayfish', 'Plants', 'Bluebell']
+                'Freshwater White-clawed Crayfish', 'Plants', 'Bluebell']
 
 # TODO: add in way of catching zero result species + 'other' species
 
@@ -251,11 +289,6 @@ def searchSites():
     return sbiIntersect, basIntersect#, MapTitle
 
 
-
-#def savetoexcel():
-
-
-
 # Load files to search from
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
@@ -264,6 +297,10 @@ sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
 baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
 invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
+
+# load basemap
+
+
 
 # Setup parameters
 myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
