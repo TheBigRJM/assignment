@@ -4,9 +4,9 @@ import rasterio as rio
 from rasterio.merge import merge
 import geopandas as gpd
 import cartopy.crs as ccrs
-import contextily as cx
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 from matplotlib_scalebar.scalebar import ScaleBar
 from shapely.geometry import Point
 from shapely.ops import unary_union
@@ -14,6 +14,7 @@ import PySimpleGUI as sg
 import bng
 from pathlib import Path
 import os
+import xlsxwriter
 
 ##### GUI #####
 # Create GUI layout elements and structure
@@ -21,6 +22,8 @@ import os
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.Text("/"),
             sg.InputText(size=3, key="-ENQNO-")],
            [sg.Text("Search area name:"), sg.InputText(size=50, key="-SITENAME-")],
+           [sg.Text("Specify output file directory"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
+            sg.FileBrowse()],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
            [sg.Text("Easting/Northing"),
@@ -63,7 +66,7 @@ def rastermosaic():
 
     path = Path('SampleData/basemaps/') # folder path to basemap tifs
     Path('output').mkdir(parents=True, exist_ok=True) # create output directory
-    output_path = 'output/' # assign output path to variable
+    output_path = 'output/mosaic.tif' # assign output path to variable
 
     raster_files = list(path.iterdir()) # iterate over the tifs in the directory
     raster_to_mosiac = [] # create epy list to hold tif names
@@ -167,7 +170,7 @@ def sppstyle():
         .plot(ax=ax, marker='v', color='deepskyblue', edgecolor='black')
 
     birds = sppSearch[sppSearch['InformalGr'] == 'bird']\
-        .plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+        .plot(ax=ax, marker='o', color='None', edgecolor='yellow', linewidth=2)
 
     amrep = sppSearch[(sppSearch['InformalGr'] == 'amphibian') & (sppSearch['InformalGr'] == 'reptile')
                       & ~(sppSearch['CommonName'] == 'Great Crested Newt')]\
@@ -199,7 +202,7 @@ def sppstyle():
     bats_handle = mlines.Line2D([], [], marker='v', color='deepskyblue', markeredgecolor='black',
                               linestyle='None', label='Bats')
 
-    birds_handle = mlines.Line2D([], [], marker='o', color='yellow', markeredgecolor='black',
+    birds_handle = mlines.Line2D([], [], marker='o', color='None', markeredgecolor='yellow', markeredgewidth=2,
                                 linestyle='None', label='Birds')
 
     amrep_handle = mlines.Line2D([], [], marker='s', color='none', markeredgecolor='deepskyblue',
@@ -253,9 +256,13 @@ def searchBats():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    #MapTitle = 'bats map'
 
-    return batSearch, batOutput#, MapTitle
+    bats_handle = mlines.Line2D([], [], marker='v', color='deepskyblue', markeredgecolor='black',
+                              linestyle='None', label='Bats')
+
+    bats_handle = [bats_handle]
+
+    return batSearch, batOutput, bats_handle
 
 
 def searchGCNs():
@@ -278,9 +285,12 @@ def searchGCNs():
                            'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-    #MapTitle = 'Great Crested Newts map'
+    gcn_handle = mlines.Line2D([], [], marker='o', color='yellow', markeredgecolor='black',
+                               linestyle='None', label='Great Crested Newt')
 
-    return gcnSearch, gcnOutput#, MapTitle
+    gcn_handle = [gcn_handle]
+
+    return gcnSearch, gcnOutput, gcn_handle
 
 
 def searchInvasive():
@@ -316,12 +326,19 @@ def searchSites():
     :return:
     '''
 
-    sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
-    basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
+    sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]\
+        .plot(ax=ax, color='None', hatch='.....', edgecolor='green')
+    basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]\
+        .plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
 
-    #MapTitle = 'nature conservation sites map'
+    sbi_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='green',
+                                label='Site of Biological Importance')
+    bas_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='blue',
+                                label='Biodiversity Alert Site')
 
-    return sbiIntersect, basIntersect#, MapTitle
+    site_handles = [sbi_handle, bas_handle]
+
+    return sbiIntersect, basIntersect, site_handles
 
 
 # Load files to search from
@@ -354,13 +371,15 @@ while True:
 # TODO: add if statement to check and prompt the enquiry number
 #   and reference for map title and filesaving
 
-    # Produce map plot
+    # First produce map plot and map furniture if the user clicks proceed
     if event == "-PROCEED-": # Only call map when proceed has been pressed
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
-        #cx.add_basemap(ax = ax, crs='epsg:27700', url=cx.providers.OpenStreetMap.Mapnik, zoom=15) # add openstreetmap basemap using contextily
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                         box.width, box.height * 0.9])
+        plt.tight_layout()
         ax.add_artist(ScaleBar(1))
-
 
         # Create north arrow
         # (source: https://stackoverflow.com/questions/58088841/how-to-add-a-north-arrow-on-a-geopandas-map)
@@ -369,6 +388,15 @@ while True:
                     arrowprops=dict(facecolor='black', width=5, headwidth=15),
                     ha='center', va='center', fontsize=15,
                     xycoords=ax.transAxes)
+
+    # Create an excel workbook to add results to
+    if values["-OUTFOLDER-"] and event =="-PROCEED-":
+        workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"])
+        worksheet = workbook.add_worksheet()
+
+    else:
+        sg.Popup('please specify a save location')
+
 
 
 # TODO: Add basemap to axis
@@ -422,9 +450,8 @@ while True:
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
-        #sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-        leg = fig.legend(handles=spplabels, title='Legend', title_fontsize=14, ncol=3,
-                        fontsize=12, loc='lower center', frameon=True, framealpha=1)
+        leg = fig.legend(handles=spplabels, loc='lower center', bbox_to_anchor=(0.5, 0),
+                         title='Legend', title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -437,8 +464,10 @@ while True:
 
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
-        gcnSearch, gcnOutput = searchGCNs()
+        gcnSearch, gcnOutput, gcn_labels = searchGCNs()
         gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+        leg = fig.legend(handles=gcn_labels, loc='upper center', bbox_to_anchor=(0.5, -0.05), title='Legend',
+                         title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -451,8 +480,10 @@ while True:
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
-        batSearch, batOutput = searchBats()
-        batSearch.plot(ax=ax, marker='^', color='blue', edgecolor='black')
+        batSearch, batOutput, bat_labels = searchBats()
+        batSearch.plot(ax=ax, marker='^', color='deepskyblue', edgecolor='black')
+        leg = fig.legend(handles=bat_labels, title='Legend', title_fontsize=14, ncol=3,
+                         fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' bats map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -463,7 +494,7 @@ while True:
 #        window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
 
-# Search for invasive species only
+# Search for invasive species only - note these are not supposed to plot to map
     if values["-INV-"] and event == "-PROCEED-":
         invSearch, invOutput = searchInvasive()
         invSearch.plot(ax=ax, marker='.', color='black')
@@ -477,9 +508,9 @@ while True:
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
-        sbiIntersect, basIntersect = searchSites()
-        sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
-        basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
+        sbiIntersect, basIntersect, site_labels = searchSites()
+        leg = fig.legend(handles=site_labels, title='Legend', title_fontsize=14, ncol=3,
+                         fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -494,10 +525,7 @@ while True:
     if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
-        sbiIntersect, basIntersect = searchSites()
-        sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
-        basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
-        sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
+        sbiIntersect, basIntersect, sites_labels = searchSites()
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
     if values["-SITESSPP-"]:
