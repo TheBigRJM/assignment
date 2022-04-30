@@ -460,7 +460,7 @@ while True:
                          title='Legend', title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
 
-        spp_workbook.add_worksheet(sppOutput)
+        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
 
         window["-SEARCHSTATUS-"].update('Species search completed')
 
