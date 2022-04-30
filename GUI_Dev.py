@@ -23,7 +23,7 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), s
             sg.InputText(size=3, key="-ENQNO-")],
            [sg.Text("Search area name:"), sg.InputText(size=50, key="-SITENAME-")],
            [sg.Text("Specify output file directory"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
-            sg.FileBrowse()],
+            sg.FolderBrowse()],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile")],
            [sg.Text("Easting/Northing"),
@@ -69,7 +69,7 @@ def rastermosaic():
     output_path = 'output/mosaic.tif' # assign output path to variable
 
     raster_files = list(path.iterdir()) # iterate over the tifs in the directory
-    raster_to_mosiac = [] # create epy list to hold tif names
+    raster_to_mosiac = [] # create empty list to hold tif names
 
     for p in raster_files: # loop through raster files in folder and append to one another in empty list defined above
         raster = rio.open(p)
@@ -83,13 +83,14 @@ def rastermosaic():
         {"driver": "GTiff",
         "height": mosaic.shape[1],
         "width": mosaic.shape[2],
-        "transform": output,})
+        "transform": output,
+         "crs": "EPSG:27700"})
 
     # write mosaic to folder
-    with rio.open(output_path, ** output_meta) as m:
+    with rio.open(output_path, mode='w', ** output_meta) as m:
         m.write(mosaic)
 
-    return rastermosaic
+    return output_path
 
 
 def searcharea_frompoint(xin, yin, buffer_radius):
@@ -341,6 +342,8 @@ def searchSites():
     return sbiIntersect, basIntersect, site_handles
 
 
+
+
 # Load files to search from
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
@@ -351,8 +354,11 @@ invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
 invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
 
 # load basemap
+with rio.open('output/mosaic.tif') as dataset:
+    img = dataset.read()
 
-
+basemap = img.copy().astype(np.float32)
+basemap = basemap.transpose()
 
 # Setup parameters
 myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
@@ -376,6 +382,7 @@ while True:
         # create empy axis
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
         box = ax.get_position()
+        ax.imshow(basemap, alpha=0.5)
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                          box.width, box.height * 0.9])
         plt.tight_layout()
@@ -390,13 +397,12 @@ while True:
                     xycoords=ax.transAxes)
 
     # Create an excel workbook to add results to
-    if values["-OUTFOLDER-"] and event =="-PROCEED-":
-        workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"])
-        worksheet = workbook.add_worksheet()
-
-    else:
-        sg.Popup('please specify a save location')
-
+    if values["-OUTFOLDER-"] and event == "-PROCEED-":
+        spp_workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +
+                                           'SpeciesSearchResults.xlsx')
+        sites_workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"]+'SitesResults')
+        sppworksheet = spp_workbook.add_worksheet()
+        sitesworksheet = sites_workbook.add_worksheet()
 
 
 # TODO: Add basemap to axis
@@ -418,7 +424,7 @@ while True:
             window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
             buffer_radius = float(values["-RADIUS-"])
             gridref = str(values["-GRIDREF-"])
-            if len(gridref) % 2 == 1: # Handle errors with grid reference lengths
+            if len(gridref) % 2 == 1: # Handle errors with invalid grid reference lengths
                 sg.popup('not a valid grid reference length')
                 continue
             else:
@@ -453,13 +459,13 @@ while True:
         leg = fig.legend(handles=spplabels, loc='lower center', bbox_to_anchor=(0.5, 0),
                          title='Legend', title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
+
+        spp_workbook.add_worksheet(sppOutput)
+
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SPP-"]:
         window["-SEARCHSTATUS-"].update('Species search selected', text_color='green')
-
-#    else:
-#        window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
 
     # Search for GCN only
@@ -474,9 +480,6 @@ while True:
     if values["-GCN-"]:
         window["-SEARCHSTATUS-"].update('GCN search selected')
 
-#    else:
-#        window["-SEARCHSTATUS-"].update('Please specify search parameters')
-
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
@@ -490,21 +493,17 @@ while True:
     if values["-BATS-"]:
         window["-SEARCHSTATUS-"].update('Bat search selected')
 
-#    else:
-#        window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
 
-# Search for invasive species only - note these are not supposed to plot to map
+    # Search for invasive species only - note these are not supposed to plot to map
     if values["-INV-"] and event == "-PROCEED-":
         invSearch, invOutput = searchInvasive()
         invSearch.plot(ax=ax, marker='.', color='black')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    elif values["-INV-"]:
+    if values["-INV-"]:
             window["-SEARCHSTATUS-"].update('Bat search selected')
 
-#    else:
-#            window["-SEARCHSTATUS-"].update('Please specify search criteria')
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
@@ -516,9 +515,6 @@ while True:
 
     if values["-SITES-"]:
         window["-SEARCHSTATUS-"].update('Sites only search selected')
-
-#    else:
-#            window["-SEARCHSTATUS-"].update('Please specify search parameters')
 
 
     # Search for sites and species
