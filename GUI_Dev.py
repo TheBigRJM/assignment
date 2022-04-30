@@ -6,6 +6,7 @@ import geopandas as gpd
 import cartopy.crs as ccrs
 import contextily as cx
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from matplotlib_scalebar.scalebar import ScaleBar
 from shapely.geometry import Point
 from shapely.ops import unary_union
@@ -145,6 +146,7 @@ def searchSpecies():
 
     return sppSearch, sppConcat, sppOutput
 
+
 def sppstyle():
     '''
 
@@ -153,7 +155,7 @@ def sppstyle():
 
     mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
                        & ~(sppSearch['CommonName'] == 'Water Vole') & ~(sppSearch['CommonName'] == 'Eurasian Badger')]\
-        .plot(ax=ax, marker='^', color='none', edgecolor='red', linewidth=2, markersize=2)
+        .plot(ax=ax, marker='^', color='none', edgecolor='red', linewidth=2)
 
     otter = sppSearch[sppSearch['CommonName'] == 'Otter']\
         .plot(ax=ax, marker='^', color='red', edgecolor='black')
@@ -165,7 +167,7 @@ def sppstyle():
         .plot(ax=ax, marker='v', color='deepskyblue', edgecolor='black')
 
     birds = sppSearch[sppSearch['InformalGr'] == 'bird']\
-        .plot(ax=ax, marker='v', color='deepskyblue', edgecolor='black')
+        .plot(ax=ax, marker='o', color='yellow', edgecolor='black')
 
     amrep = sppSearch[(sppSearch['InformalGr'] == 'amphibian') & (sppSearch['InformalGr'] == 'reptile')
                       & ~(sppSearch['CommonName'] == 'Great Crested Newt')]\
@@ -183,10 +185,43 @@ def sppstyle():
     bluebell = sppSearch[sppSearch['CommonName'] == 'Bluebell']\
         .plot(ax=ax, marker='o', color='green', edgecolor='black')
 
+    # Create proxy artist entries to create legend list
+
+    mammal_handle = mlines.Line2D([], [], marker='^', color='None', markeredgecolor='red', markeredgewidth=2,
+                                  linestyle='None', label='Mammal')
+
+    otter_handle = mlines.Line2D([], [], marker='^', color='red', markeredgecolor='black',
+                                 linestyle='None', label='Otter')
+
+    wv_handle = mlines.Line2D([], [], marker='s', color='green', markeredgecolor='black',
+                              linestyle='None', label='Water Vole')
+
+    bats_handle = mlines.Line2D([], [], marker='v', color='deepskyblue', markeredgecolor='black',
+                              linestyle='None', label='Bats')
+
+    birds_handle = mlines.Line2D([], [], marker='o', color='yellow', markeredgecolor='black',
+                                linestyle='None', label='Birds')
+
+    amrep_handle = mlines.Line2D([], [], marker='s', color='none', markeredgecolor='deepskyblue',
+                                 linestyle='None', markeredgewidth=2, label='Amphibians and Reptiles')
+
+    gcn_handle = mlines.Line2D([], [], marker='o', color='yellow', markeredgecolor='black',
+                                 linestyle='None', label='Great Crested Newt')
+
+    crayfish_handle = mlines.Line2D([], [], marker='P', color='deepskyblue', markeredgecolor='black',
+                                 linestyle='None', label='White-Clawed Crayfish')
+
+    plants_handle = mlines.Line2D([], [], marker='v', color='none', markeredgecolor='green',
+                                 linestyle='None', markeredgewidth=2, label='Plant')
+
+    bluebell_handle = mlines.Line2D([], [], marker='o', color='green', markeredgecolor='black',
+                                  linestyle='None', label='Plant')
 
     spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
-    spplabels =['mammal', 'Otter', 'Water Vole', 'Bats', 'birds', 'Amphibians and Reptiles', 'Great Crested Newt',
-                'Freshwater White-clawed Crayfish', 'Plants', 'Bluebell']
+
+    spplegend = [mammal_handle, otter_handle, wv_handle, bats_handle, birds_handle, amrep_handle, gcn_handle,
+                 crayfish_handle, plants_handle, bluebell_handle]
+
 
 # TODO: add in way of catching zero result species + 'other' species
 
@@ -196,7 +231,7 @@ def sppstyle():
             #spptype
             #print(spptype)
 
-    return spptypes, spplabels #mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell, lep, other
+    return spptypes, spplegend
 
 def searchBats():
     """
@@ -383,13 +418,13 @@ while True:
         window["-DIALOGUE-"].update('Please specify a search area', text_color='red')
 
 
-    # Search for all species in user created buffer
+    # Search for all protected species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
         #sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
-        leg = ax.legend(spptypes, spplabels, title='Legend', title_fontsize=14,
-                        fontsize=12, loc='upper left', frameon=True, framealpha=1)
+        leg = fig.legend(handles=spplabels, title='Legend', title_fontsize=14, ncol=3,
+                        fontsize=12, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -443,8 +478,8 @@ while True:
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
         sbiIntersect, basIntersect = searchSites()
-        sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
-        basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+        sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
+        basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
         plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -460,8 +495,8 @@ while True:
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
         sbiIntersect, basIntersect = searchSites()
-        sbiIntersect.plot(ax=ax, color='green', alpha=0.5)
-        basIntersect.plot(ax=ax, color='blue', alpha=0.5)
+        sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
+        basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
         sppSearch.plot(ax=ax, color='indigo', edgecolor='black')
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
