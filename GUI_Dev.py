@@ -534,9 +534,11 @@ while True:
     if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
-        sbiIntersect, basIntersect, sites_labels = searchSites()
+        sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites()
         # Save output to excel file in user specified folder
         sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
+        # Save output to excel file in user specified folder
+        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
