@@ -219,7 +219,7 @@ def sppstyle():
                                  linestyle='None', markeredgewidth=2, label='Plant')
 
     bluebell_handle = mlines.Line2D([], [], marker='o', color='green', markeredgecolor='black',
-                                  linestyle='None', label='Plant')
+                                  linestyle='None', label='Bluebell')
 
     spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
 
@@ -332,14 +332,22 @@ def searchSites():
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]\
         .plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
 
+    # Concatenate the two search results
+    sitesConcat = pd.concat([sbiIntersect, basIntersect])
+
+    # Remove extraneous columns for GDPR
+    sitesOutput = sitesConcat[['SiteID', 'SiteName', 'Status', 'Year', 'Abstract']]
+
+    # create legend items
     sbi_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='green',
                                 label='Site of Biological Importance')
     bas_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='blue',
                                 label='Biodiversity Alert Site')
 
+    # list legend items to plot
     site_handles = [sbi_handle, bas_handle]
 
-    return sbiIntersect, basIntersect, site_handles
+    return sbiIntersect, basIntersect, site_handles, sitesOutput
 
 
 
@@ -380,9 +388,10 @@ while True:
     # First produce map plot and map furniture if the user clicks proceed
     if event == "-PROCEED-": # Only call map when proceed has been pressed
         # create empy axis
-        fig, ax = plt.subplots(1, 1, figsize=(10, 10), subplot_kw=dict(projection=myCRS))
+        cm = 1/2.54
+        fig, ax = plt.subplots(1, 1, figsize=(21*cm, 29.7*cm), subplot_kw=dict(projection=myCRS))
         box = ax.get_position()
-        ax.imshow(basemap, alpha=0.5)
+        #ax.imshow(basemap, alpha=0.5)
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                          box.width, box.height * 0.9])
         plt.tight_layout()
@@ -395,14 +404,6 @@ while True:
                     arrowprops=dict(facecolor='black', width=5, headwidth=15),
                     ha='center', va='center', fontsize=15,
                     xycoords=ax.transAxes)
-
-    # Create an excel workbook to add results to
-    if values["-OUTFOLDER-"] and event == "-PROCEED-":
-        spp_workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +
-                                           'SpeciesSearchResults.xlsx')
-        sites_workbook = xlsxwriter.Workbook(values["-OUTFOLDER-"]+'SitesResults')
-        sppworksheet = spp_workbook.add_worksheet()
-        sitesworksheet = sites_workbook.add_worksheet()
 
 
 # TODO: Add basemap to axis
@@ -457,11 +458,11 @@ while True:
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
         leg = fig.legend(handles=spplabels, loc='lower center', bbox_to_anchor=(0.5, 0),
-                         title='Legend', title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
+                         title='Legend', title_fontsize=14, ncol=4, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
-
+        # Save output to excel file in user specified folder
         sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
-
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SPP-"]:
@@ -475,6 +476,9 @@ while True:
         leg = fig.legend(handles=gcn_labels, loc='upper center', bbox_to_anchor=(0.5, -0.05), title='Legend',
                          title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')
+        # Save output to excel file in user specified folder
+        gcnOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'GCNSearchResults.xlsx')
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-GCN-"]:
@@ -488,6 +492,9 @@ while True:
         leg = fig.legend(handles=bat_labels, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' bats map')
+        # Save output to excel file in user specified folder
+        batOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'BatsSearchResults.xlsx')
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-BATS-"]:
@@ -498,7 +505,10 @@ while True:
     # Search for invasive species only - note these are not supposed to plot to map
     if values["-INV-"] and event == "-PROCEED-":
         invSearch, invOutput = searchInvasive()
-        invSearch.plot(ax=ax, marker='.', color='black')
+        #invSearch.plot(ax=ax, marker='.', color='black')
+        # Save output to excel file in user specified folder
+        invOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'InvasiveSearchResults.xlsx')
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-INV-"]:
@@ -507,10 +517,13 @@ while True:
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
-        sbiIntersect, basIntersect, site_labels = searchSites()
+        sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites()
         leg = fig.legend(handles=site_labels, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
+        # Save output to excel file in user specified folder
+        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
     if values["-SITES-"]:
@@ -522,6 +535,9 @@ while True:
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
         sbiIntersect, basIntersect, sites_labels = searchSites()
+        # Save output to excel file in user specified folder
+        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
+        # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
     if values["-SITESSPP-"]:
@@ -531,3 +547,8 @@ while True:
 
     if valuelist == [None]:
        window["-SEARCHSTATUS-"].update('Please specify search parameters', text_color='red')
+
+
+    if event == "-PROCEED-":
+        fig.savefig(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'map.jpeg',
+                bbox_inches='tight', dpi=300)
