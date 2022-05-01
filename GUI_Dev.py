@@ -14,7 +14,6 @@ import PySimpleGUI as sg
 import bng
 from pathlib import Path
 import os
-import xlsxwriter
 
 ##### GUI #####
 # Create GUI layout elements and structure
@@ -34,7 +33,7 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), s
             sg.Input(size=12, key="-GRIDREF-", enable_events=True)],
             [sg.Text('-OR-')],
             [sg.Text("Shapefile"), sg.Input(size=30, key="-BDYFILE-", enable_events=True),
-            sg.FileBrowse()],
+            sg.FileBrowse(file_types=(("Shapefile", "*.SHP"), ("MapInfo TAB", "*.TAB"),))],
             [sg.Text('-AND-')],
            [sg.Text("Search Radius (in metres)"), sg.Input(size=12, key="-RADIUS-", enable_events=True)],
            [sg.Text("Please specify a search area", text_color='red', key="-DIALOGUE-", enable_events=True)],
