@@ -31,13 +31,13 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, 
            [sg.Text("Easting/Northing"),
             sg.Input(size=12, key="-EASTING-", enable_events=True),
             sg.Input(size=12, key="-NORTHING-", enable_events=True)],
-            [sg.Text('-OR-')],
-            [sg.Text("BNG Grid Reference"),
+           [sg.Text('-OR-')],
+           [sg.Text("BNG Grid Reference"),
             sg.Input(size=12, key="-GRIDREF-", enable_events=True)],
-            [sg.Text('-OR-')],
-            [sg.Text("Shapefile"), sg.Input(size=30, key="-BDYFILE-", enable_events=True),
+           [sg.Text('-OR-')],
+           [sg.Text("Shapefile"), sg.Input(size=30, key="-BDYFILE-", enable_events=True),
             sg.FileBrowse(file_types=(("Shapefile", "*.SHP"), ("MapInfo TAB", "*.TAB"),))],
-            [sg.Text('-AND-')],
+           [sg.Text('-AND-')],
            [sg.Text("Search Radius (in metres)"), sg.Input(size=12, key="-RADIUS-", enable_events=True)],
            [sg.Text("Please specify a search area", text_color='red', key="-DIALOGUE-", enable_events=True)],
            [sg.Text("Please specify search parameters", text_color='red', key="-SEARCHSTATUS-", enable_events=True)]]
@@ -53,12 +53,13 @@ column2 = [[sg.Text('Select search parameters', font=("Helvetica", 15))],
 
 layout = [[sg.Text('Enquiry creator tool', font=("Helvetica", 25))],
           [sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
-          [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
+          [sg.Button('Proceed', key="-PROCEED-"), sg.CloseButton('Cancel', key="-CANCEL-")]]
 
 # put gui elements in a window
 window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
 
 # Declare functions from within the GUI
+
 
 def rastermosaic():
     '''
@@ -66,22 +67,22 @@ def rastermosaic():
     :return:
     '''
 
-    path = Path('SampleData/basemaps/') # folder path to basemap tifs
-    Path('output').mkdir(parents=True, exist_ok=True) # create output directory
-    output_path = 'output/mosaic.tif' # assign output path to variable
+    path = Path('SampleData/basemaps/')  # folder path to basemap tifs
+    Path('output').mkdir(parents=True, exist_ok=True)  # create output directory
+    output_path = 'output/mosaic.tif'  # assign output path to variable
 
-    raster_files = list(path.iterdir()) # iterate over the tifs in the directory
-    raster_to_mosiac = [] # create empty list to hold tif names
+    raster_files = list(path.iterdir())  # iterate over the tifs in the directory
+    raster_to_mosiac = []  # create empty list to hold tif names
 
-    for p in raster_files: # loop through raster files in folder and append to one another in empty list defined above
+    for p in raster_files:  # loop through raster files in folder and append to one another in empty list defined above
         raster = rio.open(p)
         raster_to_mosiac.append(raster)
 
-    mosaic, output = merge(raster_to_mosiac) # Merge tifs in folder together using populated list
+    mosaic, output = merge(raster_to_mosiac)  # Merge tifs in folder together using populated list
 
-    output_meta = raster.meta.copy() # create a copy of each rasters metadata
+    output_meta = raster.meta.copy()  # create a copy of each rasters metadata
 
-    output_meta.update( # update the metadata values to match values of the mosaic
+    output_meta.update(  # update the metadata values to match values of the mosaic
         {"driver": "GTiff",
         "height": mosaic.shape[1],
         "width": mosaic.shape[2],
@@ -103,6 +104,12 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     point_x and point_y require pure easting and northing values.
 
     buffer_area value is in metres
+
+    :arg xin
+
+    :arg: yin
+
+    :arg buffer_radius
     """
 
     userpoint = Point(xin, yin) # shapely geometry
@@ -116,8 +123,9 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
 
 def searcharea_frompoly(user_polypath, buffer_radius):
-    """ """
-
+    """
+    docstring
+    """
 
     userfile = gpd.read_file(user_polypath) # import user selected file
     union = unary_union(userfile.geometry)
@@ -149,15 +157,14 @@ def searchSpecies():
                            'UKProt', 'PrincipalS', 'RareSpp', 'StatInvasi', 'StaffsINNS', 'RecordStat', 'Confidenti',
                            'Easting', 'Northing', 'Precision']]
 
-
     return sppSearch, sppConcat, sppOutput
 
 
 def sppstyle():
-    '''
-
+    """
+    docstring
     :return:
-    '''
+    """
 
     mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
                        & ~(sppSearch['CommonName'] == 'Water Vole') & ~(sppSearch['CommonName'] == 'Eurasian Badger')]\
@@ -221,7 +228,7 @@ def sppstyle():
                                  linestyle='None', markeredgewidth=2, label='Plant')
 
     bluebell_handle = mlines.Line2D([], [], marker='o', color='green', markeredgecolor='black',
-                                  linestyle='None', label='Bluebell')
+                                linestyle='None', label='Bluebell')
 
     spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
 
@@ -345,10 +352,10 @@ def searchSites():
 
     #  Add site labels (https://stackoverflow.com/questions/38899190/geopandas-label-polygons)
     sbiIntersect.apply(lambda x: ax.annotate(text=x['SiteID'], size=8, color='green', weight='bold',
-                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1);
+                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1)
 
     basIntersect.apply(lambda x: ax.annotate(text=x['SiteID'], size=8, color='deepskyblue', weight='bold',
-                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1);
+                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1)
 
     # create legend items
     sbi_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='green',
@@ -362,6 +369,19 @@ def searchSites():
     return sbiIntersect, basIntersect, site_handles, sitesOutput
 
 
+def load_basemap(filepath):
+    '''
+    This is where you should write a docstring.
+    '''
+    with rio.open(filepath) as dataset:
+        img = dataset.read()
+        bmxmin, bmymin, bmxmax, bmymax = dataset.bounds
+
+    dispimg = img.copy().astype(np.float32)
+    dispimg = dispimg.transpose()
+
+    return bmxmin, bmymin, bmxmax, bmymax, dispimg
+
 
 
 # Load files to search from
@@ -373,18 +393,17 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
 invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
 invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
 
-# load basemap
-with rio.open('output/mosaic.tif') as dataset:
-    img = dataset.read()
-
-basemap = img.copy().astype(np.float32)
-basemap = basemap.transpose()
-
-# Setup parameters
+# Setup CRS of the axis
 myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
 
+# load basemap
+# return extent values from load_basemap function
+bmxmin, bmymin, bmxmax, bmymax, basemap = load_basemap('output/mosaic.tif')
+# plot basemap using extents
+basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS}
 
-# GUI event loop
+
+# Begin GUI event loop
 while True:
     event, values = window.read()
     print(values)
@@ -403,11 +422,14 @@ while True:
         cm = 1/2.54
         fig, ax = plt.subplots(1, 1, figsize=(21*cm, 29.7*cm), subplot_kw=dict(projection=myCRS))
         box = ax.get_position()
-        ax.imshow(basemap, alpha=0.5)
+        ax.imshow(basemap, **basemap_kwargs, cmap='gray')
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                          box.width, box.height * 0.9])
-        plt.tight_layout()
-        ax.add_artist(ScaleBar(1))
+        ax.add_artist(ScaleBar(1))  # Add scalebar
+        # Add gridlines - currently epsg projections not supported in cartopy 0.18.
+        gridlines = ax.gridlines(draw_labels=True)
+        gridlines.right_labels = False
+        gridlines.bottom_labels = False
 
         # Create north arrow
         # (source: https://stackoverflow.com/questions/58088841/how-to-add-a-north-arrow-on-a-geopandas-map)
@@ -416,58 +438,67 @@ while True:
                     arrowprops=dict(facecolor='black', width=5, headwidth=15),
                     ha='center', va='center', fontsize=15,
                     xycoords=ax.transAxes)
-
+        plt.tight_layout()
 
 # TODO: Add basemap to axis
 
+    # Check to see if the buffer radius is a number
+    if values["-RADIUS-"]:
+        text = values["-RADIUS-"]
+        try:
+            value = int(text)
+            print(f'Integer: {value}')
+        except:
+            print("Not Integer")
+            sg.popup('buffer must be an integer value')
+            continue
+
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
-            buffer_radius = float(values["-RADIUS-"])
-            easting = float(values["-EASTING-"])
-            northing = float(values["-NORTHING-"])
+        window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
+        buffer_radius = float(values["-RADIUS-"])
+        easting = float(values["-EASTING-"])
+        northing = float(values["-NORTHING-"])
 
-            if event == "-PROCEED-":
-                point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                userbuffer.plot(ax=ax, color='none', edgecolor='black')
-                point.plot(ax=ax, marker='*', color='red', markersize=20)
-                xmin, ymin, xmax, ymax = userbuffer.bounds
+        if event == "-PROCEED-":
+            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
+            userbuffer.plot(ax=ax, color='none', edgecolor='black')
+            point.plot(ax=ax, marker='*', color='red', markersize=20)
+            xmin, ymin, xmax, ymax = userbuffer.bounds
 
     # Create buffer from BNG grid reference
     elif values["-GRIDREF-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
-            buffer_radius = float(values["-RADIUS-"])
-            gridref = str(values["-GRIDREF-"])
-            if len(gridref) % 2 == 1: # Handle errors with invalid grid reference lengths
-                sg.popup('not a valid grid reference length')
-                continue
-            else:
-                gridref = bng.to_osgb36(gridref)
-                easting = gridref[0]
-                northing = gridref[1]
+        window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
+        buffer_radius = float(values["-RADIUS-"])
+        gridref = str(values["-GRIDREF-"])
+        if len(gridref) % 2 == 1: # Handle errors with invalid grid reference lengths
+            sg.popup('not a valid grid reference length')
+            continue
+        else:
+            gridref = bng.to_osgb36(gridref)  # convert the grid ref to easting & northing values
+            easting = gridref[0]  # get easting from grid ref
+            northing = gridref[1]  # get northing from grid ref
 
-
-            if event == "-PROCEED-":
-                point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-                userbuffer.plot(ax=ax, color='none', edgecolor='black')
-                point.plot(ax=ax, marker='*', color='red', markersize=20)
+        if event == "-PROCEED-":
+            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
+            userbuffer.plot(ax=ax, color='none', edgecolor='black')
+            point.plot(ax=ax, marker='*', color='red', markersize=20)
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
-            window["-DIALOGUE-"].update('polygon and buffer selected', text_color='green')
-            buffer_radius = float(values["-RADIUS-"])
+        window["-DIALOGUE-"].update('polygon and buffer selected', text_color='green')
+        buffer_radius = float(values["-RADIUS-"])
 
-            if event == "-PROCEED-":
-                userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
-                userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
-                userbuffer.plot(ax=ax, color='none', edgecolor='black')
-                xmin, ymin, xmax, ymax = buffer_feature.bounds
-                # set the extent of the frame, give a 200m buffer to avoid being tight to edge of feature
-                ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
+        if event == "-PROCEED-":
+            userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
+            userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
+            userbuffer.plot(ax=ax, color='none', edgecolor='black')
+            xmin, ymin, xmax, ymax = buffer_feature.bounds
+            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of feature
+            ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     else: # Reset prompt to ask user for search area
         window["-DIALOGUE-"].update('Please specify a search area', text_color='red')
-
 
     # Search for all protected species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
@@ -481,9 +512,8 @@ while True:
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    if values["-SPP-"]:
+    elif values["-SPP-"]:
         window["-SEARCHSTATUS-"].update('Species search selected', text_color='green')
-
 
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
@@ -497,9 +527,8 @@ while True:
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    if values["-GCN-"]:
+    elif values["-GCN-"]:
         window["-SEARCHSTATUS-"].update('GCN search selected')
-
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
@@ -513,23 +542,20 @@ while True:
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    if values["-BATS-"]:
+    elif values["-BATS-"]:
         window["-SEARCHSTATUS-"].update('Bat search selected')
-
-
 
     # Search for invasive species only - note these are not supposed to plot to map
     if values["-INV-"] and event == "-PROCEED-":
         invSearch, invOutput = searchInvasive()
-        #invSearch.plot(ax=ax, marker='.', color='black')
+        # invSearch.plot(ax=ax, marker='.', color='black')
         # Save output to excel file in user specified folder
         invOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'InvasiveSearchResults.xlsx')
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    if values["-INV-"]:
-            window["-SEARCHSTATUS-"].update('Bat search selected')
-
+    elif values["-INV-"]:
+        window["-SEARCHSTATUS-"].update('Bat search selected')
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
@@ -542,23 +568,22 @@ while True:
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
-    if values["-SITES-"]:
+    elif values["-SITES-"]:
         window["-SEARCHSTATUS-"].update('Sites only search selected')
-
 
     # Search for sites and species
     if values["-SITESSPP-"] and event == "-PROCEED-":
-        sppSearch, sppConcat, sppOutput = searchSpecies() # run spp search
-        spptypes, spplabels = sppstyle() # plot spp, style and return labels
-        sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites() # sites search, plot, return handles
-        handles = sites_labels + spplabels # Create list of spp and sites handles
+        sppSearch, sppConcat, sppOutput = searchSpecies()  # run spp search
+        spptypes, spplabels = sppstyle()  # plot spp, style and return labels
+        sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites()  # sites search, plot, return handles
+        handles = sites_labels + spplabels  # Create list of spp and sites handles
         # Create legend
         leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
 
         # Save output to excel file in user specified folder
-        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
+        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SpeciesSearchResults.xlsx')
         # Save output to excel file in user specified folder
         sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
         # Update window to tell user search was completed
@@ -570,9 +595,8 @@ while True:
     valuelist = [values]
 
     if valuelist == [None]:
-       window["-SEARCHSTATUS-"].update('Please specify search parameters', text_color='red')
+        window["-SEARCHSTATUS-"].update('Please specify search parameters', text_color='red')
 
     # Save the map to user specified folder
     if event == "-PROCEED-":
-        fig.savefig(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'map.jpeg',
-                bbox_inches='tight', dpi=300)
+        fig.savefig(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'map.jpeg', bbox_inches='tight', dpi=300)
