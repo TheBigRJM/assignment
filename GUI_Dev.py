@@ -86,7 +86,7 @@ def rastermosaic():
         "height": mosaic.shape[1],
         "width": mosaic.shape[2],
         "transform": output,
-         "crs": "EPSG:27700"})
+        "crs": "EPSG:27700"})
 
     # write mosaic to folder
     with rio.open(output_path, mode='w', ** output_meta) as m:
@@ -329,6 +329,7 @@ def searchSites():
     :return:
     '''
 
+    # Search for sites which intersect the buffer area
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
     basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
 
@@ -338,13 +339,21 @@ def searchSites():
     # Remove extraneous columns for GDPR
     sitesOutput = sitesConcat[['SiteID', 'SiteName', 'Status', 'Year', 'Abstract']]
 
+    # Plot the sites on the map
     sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
-    basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
+    basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='deepskyblue')
+
+    #  Add site labels (https://stackoverflow.com/questions/38899190/geopandas-label-polygons)
+    sbiIntersect.apply(lambda x: ax.annotate(text=x['SiteID'], size=8, color='green', weight='bold',
+                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1);
+
+    basIntersect.apply(lambda x: ax.annotate(text=x['SiteID'], size=8, color='deepskyblue', weight='bold',
+                                             xy=x.geometry.centroid.coords[0], ha='center'), axis=1);
 
     # create legend items
     sbi_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='green',
                                 label='Site of Biological Importance')
-    bas_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='blue',
+    bas_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='deepskyblue',
                                 label='Biodiversity Alert Site')
 
     # list legend items to plot
@@ -527,7 +536,7 @@ while True:
         sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites()
         leg = fig.legend(handles=site_labels, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
-        plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
+        plt.suptitle(values["-SITENAME-"] + ' nature conservation sites map')
         # Save output to excel file in user specified folder
         sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
         # Update window to tell user search was completed
@@ -546,6 +555,8 @@ while True:
         # Create legend
         leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
+        plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
+
         # Save output to excel file in user specified folder
         sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
         # Save output to excel file in user specified folder
