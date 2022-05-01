@@ -27,7 +27,7 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, 
            [sg.Text("Specify output file directory"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
             sg.FolderBrowse()],
            [sg.Text("----------------------------------------")],
-           [sg.Text("Search from Grid Reference or Shapefile")],
+           [sg.Text("Search from Grid Reference or Shapefile", font=("Helvectica", 15))],
            [sg.Text("Easting/Northing"),
             sg.Input(size=12, key="-EASTING-", enable_events=True),
             sg.Input(size=12, key="-NORTHING-", enable_events=True)],
@@ -43,7 +43,7 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, 
            [sg.Text("Please specify search parameters", text_color='red', key="-SEARCHSTATUS-", enable_events=True)]]
 
 
-column2 = [[sg.Text('Select search parameters')],
+column2 = [[sg.Text('Select search parameters', font=("Helvetica", 15))],
            [sg.Checkbox('Species', default=False, key="-SPP-", enable_events=True)],
            [sg.Checkbox('Bats only', default=False, key="-BATS-", enable_events=True)],
            [sg.Checkbox('GCN only', default=False, key="-GCN-", enable_events=True)],
@@ -51,7 +51,7 @@ column2 = [[sg.Text('Select search parameters')],
            [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)],
            [sg.Checkbox('Species and Sites', default=False, key="-SITESSPP-", enable_events=True)]]
 
-layout = [[sg.Text('Enquiry creator tool')],
+layout = [[sg.Text('Enquiry creator tool', font=("Helvetica", 25))],
           [sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key=("-PROCEED-")), sg.CloseButton('Cancel', key=("-CANCEL-"))]]
 
@@ -329,16 +329,17 @@ def searchSites():
     :return:
     '''
 
-    sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]\
-        .plot(ax=ax, color='None', hatch='.....', edgecolor='green')
-    basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]\
-        .plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
+    sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
+    basIntersect = baslayer[baslayer.intersects(buffer_feature, align=True)]
 
     # Concatenate the two search results
     sitesConcat = pd.concat([sbiIntersect, basIntersect])
 
     # Remove extraneous columns for GDPR
     sitesOutput = sitesConcat[['SiteID', 'SiteName', 'Status', 'Year', 'Abstract']]
+
+    sbiIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='green')
+    basIntersect.plot(ax=ax, color='None', hatch='.....', edgecolor='blue')
 
     # create legend items
     sbi_handle = mpatches.Patch(facecolor='None', hatch='.....', edgecolor='green',
@@ -393,7 +394,7 @@ while True:
         cm = 1/2.54
         fig, ax = plt.subplots(1, 1, figsize=(21*cm, 29.7*cm), subplot_kw=dict(projection=myCRS))
         box = ax.get_position()
-        #ax.imshow(basemap, alpha=0.5)
+        ax.imshow(basemap, alpha=0.5)
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                          box.width, box.height * 0.9])
         plt.tight_layout()
@@ -421,6 +422,7 @@ while True:
                 point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
                 userbuffer.plot(ax=ax, color='none', edgecolor='black')
                 point.plot(ax=ax, marker='*', color='red', markersize=20)
+                xmin, ymin, xmax, ymax = userbuffer.bounds
 
     # Create buffer from BNG grid reference
     elif values["-GRIDREF-"] and values["-RADIUS-"]:
@@ -450,6 +452,9 @@ while True:
                 userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
                 userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
                 userbuffer.plot(ax=ax, color='none', edgecolor='black')
+                xmin, ymin, xmax, ymax = buffer_feature.bounds
+                # set the extent of the frame, give a 200m buffer to avoid being tight to edge of feature
+                ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     else: # Reset prompt to ask user for search area
         window["-DIALOGUE-"].update('Please specify a search area', text_color='red')
@@ -534,9 +539,13 @@ while True:
 
     # Search for sites and species
     if values["-SITESSPP-"] and event == "-PROCEED-":
-        sppSearch, sppConcat, sppOutput = searchSpecies()
-        spptypes, spplabels = sppstyle()
-        sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites()
+        sppSearch, sppConcat, sppOutput = searchSpecies() # run spp search
+        spptypes, spplabels = sppstyle() # plot spp, style and return labels
+        sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites() # sites search, plot, return handles
+        handles = sites_labels + spplabels # Create list of spp and sites handles
+        # Create legend
+        leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
+                         fontsize=10, loc='lower center', frameon=True, framealpha=1)
         # Save output to excel file in user specified folder
         sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
         # Save output to excel file in user specified folder
@@ -544,7 +553,7 @@ while True:
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Sites and species search completed')
 
-    if values["-SITESSPP-"]:
+    elif values["-SITESSPP-"]:
         window["-SEARCHSTATUS-"].update('Sites and species search selected')
 
     valuelist = [values]
@@ -552,7 +561,7 @@ while True:
     if valuelist == [None]:
        window["-SEARCHSTATUS-"].update('Please specify search parameters', text_color='red')
 
-
+    # Save the map to user specified folder
     if event == "-PROCEED-":
         fig.savefig(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'map.jpeg',
                 bbox_inches='tight', dpi=300)
