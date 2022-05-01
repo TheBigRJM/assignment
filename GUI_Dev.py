@@ -378,7 +378,7 @@ def load_basemap(filepath):
         bmxmin, bmymin, bmxmax, bmymax = dataset.bounds
 
     dispimg = img.copy().astype(np.float32)
-    dispimg = dispimg.transpose()
+    dispimg = dispimg.transpose([1, 2, 0])
 
     return bmxmin, bmymin, bmxmax, bmymax, dispimg
 
