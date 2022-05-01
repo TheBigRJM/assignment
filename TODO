@@ -1,16 +1,16 @@
 - list of items still to do
 
 - [] basemap import or through opensource - openmap local from OS (
-- [] export dfs to excel sheets (work out whether these can be imported to templates)
+- [x] export dfs to excel sheets (work out whether these can be imported to templates)
 - [] finish gui
 - [] debug ax labels
 - [x] invasive species - upload sample data and update function to work on new variables
 - [] labels for sites
-- [] Legend
-- [] Save map
-- [] edit gui to only accept shp files from browser
+- [x] Legend
+- [x] Save map
+- [x] edit gui to only accept shp files from browser
 - [x] species composite
-- [] select specific columns from sites search
+- [x] select specific columns from sites search
 - [] finish docstrings for all delcred functions
 - [x] scalebar on axis
 - [] handling multiple image tiles in background map - or use vector data and colour appropriately.
