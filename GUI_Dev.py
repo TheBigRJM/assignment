@@ -13,12 +13,15 @@ from shapely.ops import unary_union
 import PySimpleGUI as sg
 import bng
 from pathlib import Path
-import os
+from datetime import date
 
 ##### GUI #####
 # Create GUI layout elements and structure
 
-column1 = [[sg.Text("Enquiry number:"), sg.InputText(size=2, key="-ENQYEAR-"), sg.Text("/"),
+year = date.today().year
+tdyr = int(str(year)[2:4])
+
+column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, key="-ENQYEAR-"), sg.Text("/"),
             sg.InputText(size=3, key="-ENQNO-")],
            [sg.Text("Search area name:"), sg.InputText(size=50, key="-SITENAME-")],
            [sg.Text("Specify output file directory"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
