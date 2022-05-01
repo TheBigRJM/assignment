@@ -413,8 +413,29 @@ while True:
         print('User cancelled')
         break
 
-# TODO: add if statement to check and prompt the enquiry number
-#   and reference for map title and filesaving
+# TODO - bugfix value missing errors.
+    # Check to see if the buffer radius is an integer to prevent early error termination
+    if values["-RADIUS-"]:
+        text = values["-RADIUS-"]
+        try:
+            value = int(text)
+            print(f'Integer: {value}')
+        except:
+            print("Not Integer")
+            sg.popup('buffer must be an integer value')
+            continue
+
+    if values["-ENQNO-"] == '' and event == "-PROCEED-":
+        sg.popup('enquiry number required')
+        continue
+
+    if values["-SITENAME-"] == '' and event == "-PROCEED-":
+        sg.popup('site name required')
+        continue
+
+    if values["-OUTFOLDER-"] == '' and event == "-PROCEED-":
+        sg.popup('output location required')
+        continue
 
     # First produce map plot and map furniture if the user clicks proceed
     if event == "-PROCEED-": # Only call map when proceed has been pressed
@@ -441,17 +462,6 @@ while True:
         plt.tight_layout()
 
 # TODO: Add basemap to axis
-
-    # Check to see if the buffer radius is a number
-    if values["-RADIUS-"]:
-        text = values["-RADIUS-"]
-        try:
-            value = int(text)
-            print(f'Integer: {value}')
-        except:
-            print("Not Integer")
-            sg.popup('buffer must be an integer value')
-            continue
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
