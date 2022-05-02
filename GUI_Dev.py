@@ -21,6 +21,8 @@ from datetime import date
 year = date.today().year  # Get current year
 tdyr = int(str(year)[2:4])  # Cut current year value into 2 digits
 
+sg.theme('DarkGrey2')
+
 # Specify values for first column of GUI
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, key="-ENQYEAR-"), sg.Text("/"),
             sg.InputText(size=3, key="-ENQNO-")],
