@@ -1,16 +1,30 @@
 - list of items still to do
 
-- [] basemap import or through opensource
-- [] export dfs to excel sheets (work out whether these can be imported to templates)
+- [] basemap import or through opensource - openmap local from OS (
+- [x] export dfs to excel sheets (work out whether these can be imported to templates)
 - [] finish gui
 - [] debug ax labels
 - [x] invasive species - upload sample data and update function to work on new variables
 - [] labels for sites
-- [] Legend
-- [] Save map outputs
-- [] edit gui to only accept shp files from browser
+- [x] Legend
+- [x] Save map
+- [x] edit gui to only accept shp files from browser
+- [x] species composite
+- [x] select specific columns from sites search
+- [] finish docstrings for all delcred functions
+- [x] scalebar on axis
+- [] handling multiple image tiles in background map - or use vector data and colour appropriately.
 
 
-gui thoughts
- - add plot statements into new function and call elements of function based on checkboxes when pressing run in the gui hopefully should only plot the required 
- features based on selection from gui dialogue.
+tips:
+line style reference: https://stackoverflow.com/questions/13359951/is-there-a-list-of-line-styles-in-matplotlib
+polygon style reference: https://matplotlib.org/3.5.0/gallery/shapes_and_collections/hatch_style_reference.html
+Further styl;e referencing, density of pattern etc: https://stackoverflow.com/questions/14325773/how-to-change-marker-border-width-and-hatch-width
+matplotlib cheat sheet: https://matplotlib.org/cheatsheets/
+loading MapInfo data: https://stackoverflow.com/questions/22218069/how-to-load-mapinfo-file-into-geopandas
+guide to docstring elements: https://www.geeksforgeeks.org/python-docstrings/#:~:text=The%20doc%20string%20line%20should,the%20rest%20of%20the%20description.
+using OS API in python: https://github.com/OrdnanceSurvey/os-data-hub-api-tutorials/blob/master/tutorial-01-proptech/os-data-hub-api-tutorial-01-proptech.ipynb
+Calculating distance for Spp composite: https://gis.stackexchange.com/questions/342433/calculating-distance-from-polygon-to-point
+https://stackoverflow.com/questions/56559520/change-background-map-for-contextily
+http://darribas.org/gds19/content/labs/lab_03.html
+https://gis.stackexchange.com/questions/378745/contextily-add-basemap-uses-wrong-extent-and-zoom-level
