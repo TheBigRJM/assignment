@@ -21,7 +21,7 @@ from datetime import date
 year = date.today().year  # Get current year
 tdyr = int(str(year)[2:4])  # Cut current year value into 2 digits
 
-sg.theme('DarkGrey2')
+sg.theme('LightGreen')
 
 # Specify values for first column of GUI
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, key="-ENQYEAR-"), sg.Text("/"),
@@ -121,8 +121,8 @@ def searcharea_frompoint(xin, yin, buffer_radius):
     :arg buffer_radius required buffer in metres, value as either int or flt
     """
 
-    userpoint = Point(xin, yin) # shapely geometry
-    bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely geometry for running search
+    userpoint = Point(xin, yin)  # shapely geometry
+    bufferGeom = userpoint.buffer(buffer_radius, resolution=50)  # shapely geometry for running search
 
     # Convert to geoseries for mapping in matplotlib
     userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True)
@@ -147,19 +147,19 @@ def searcharea_frompoly(user_polypath, buffer_radius):
     docstring
     """
 
-    userfile = gpd.read_file(user_polypath) # import user selected file
+    userfile = gpd.read_file(user_polypath)  # import user selected file
     union = unary_union(userfile.geometry)
     userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))  # buffer user file with user input buffer (for plotting)
-    bufferGeom = union.buffer(buffer_radius) # Create shapely geometry to carry out intersects
+    bufferGeom = union.buffer(buffer_radius)  # Create shapely geometry to carry out intersects
 
     userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
     userbuffer.plot(ax=ax, color='none', edgecolor='red', linewidth=1.5)
 
     userpoly_handle = mpatches.Patch(facecolor='None', hatch='//', edgecolor='blue',
-                                label='Search area')
+                                     label='Search area')
 
     userbuffer_handle = mpatches.Patch(facecolor='None', edgecolor='red',
-                                label='Search buffer')
+                                       label='Search buffer')
 
     input_handles = [userpoly_handle, userbuffer_handle]
 
@@ -241,39 +241,33 @@ def sppstyle():
                               linestyle='None', label='Water Vole')
 
     bats_handle = mlines.Line2D([], [], marker='v', color='deepskyblue', markeredgecolor='black',
-                              linestyle='None', label='Bats')
+                                linestyle='None', label='Bats')
 
     birds_handle = mlines.Line2D([], [], marker='o', color='None', markeredgecolor='yellow', markeredgewidth=2,
-                                linestyle='None', label='Birds')
+                                 linestyle='None', label='Birds')
 
     amrep_handle = mlines.Line2D([], [], marker='s', color='none', markeredgecolor='deepskyblue',
                                  linestyle='None', markeredgewidth=2, label='Amphibians and Reptiles')
 
     gcn_handle = mlines.Line2D([], [], marker='o', color='yellow', markeredgecolor='black',
-                                 linestyle='None', label='Great Crested Newt')
+                               linestyle='None', label='Great Crested Newt')
 
     crayfish_handle = mlines.Line2D([], [], marker='P', color='deepskyblue', markeredgecolor='black',
-                                 linestyle='None', label='White-Clawed Crayfish')
+                                    linestyle='None', label='White-Clawed Crayfish')
 
     plants_handle = mlines.Line2D([], [], marker='v', color='none', markeredgecolor='green',
-                                 linestyle='None', markeredgewidth=2, label='Plant')
+                                  linestyle='None', markeredgewidth=2, label='Plant')
 
     bluebell_handle = mlines.Line2D([], [], marker='o', color='green', markeredgecolor='black',
-                                linestyle='None', label='Bluebell')
+                                    linestyle='None', label='Bluebell')
 
-    spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]# lep, other
+    spptypes = [mammal, otter, wv, bats, birds, amrep, gcn, crayfish, plants, bluebell]  # lep, other
 
     spplegend = [mammal_handle, otter_handle, wv_handle, bats_handle, birds_handle, amrep_handle, gcn_handle,
                  crayfish_handle, plants_handle, bluebell_handle]
 
 
 # TODO: add in way of catching zero result species + 'other' species
-
-#ignore below statement: for prototyping refining code only
-    #for spptype in spptypes:
-        #if spptype.empty == False:
-            #spptype
-            #print(spptype)
 
     return spptypes, spplegend
 
@@ -300,7 +294,7 @@ def searchBats():
 
 
     bats_handle = mlines.Line2D([], [], marker='v', color='deepskyblue', markeredgecolor='black',
-                              linestyle='None', label='Bats')
+                                linestyle='None', label='Bats')
 
     bats_handle = [bats_handle]
 
@@ -336,10 +330,10 @@ def searchGCNs():
 
 
 def searchInvasive():
-    '''
+    """
     function to carry out an Invasive Species search based on input parameters
     :return:
-    '''
+    """
 
     df = invasivespecies
     df1km = invasivespecies1km
