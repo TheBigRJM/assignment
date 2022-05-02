@@ -8,6 +8,6 @@ This program allows the user to input either a grid reference or upload a shapef
 
 ## 2. Guidance and use limitations based on sample data provided
 
-A sample of data has been provided to demonstrate the capability of the program (name of data)
+A sample of data has been provided to demonstrate the capability of the program, this can be found in data
 
 ## 3. 
