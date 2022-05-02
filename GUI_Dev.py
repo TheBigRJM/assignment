@@ -15,16 +15,17 @@ import bng
 from pathlib import Path
 from datetime import date
 
-##### GUI #####
+
 # Create GUI layout elements and structure
 
-year = date.today().year
-tdyr = int(str(year)[2:4])
+year = date.today().year  # Get current year
+tdyr = int(str(year)[2:4])  # Cut current year value into 2 digits
 
+# Specify values for first column of GUI
 column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, key="-ENQYEAR-"), sg.Text("/"),
             sg.InputText(size=3, key="-ENQNO-")],
            [sg.Text("Search area name:"), sg.InputText(size=50, key="-SITENAME-")],
-           [sg.Text("Specify output file directory"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
+           [sg.Text("Specify output file directory:"), sg.Input(size=40, key="-OUTFOLDER-", enable_events=True),
             sg.FolderBrowse()],
            [sg.Text("----------------------------------------")],
            [sg.Text("Search from Grid Reference or Shapefile", font=("Helvectica", 15))],
@@ -39,33 +40,39 @@ column1 = [[sg.Text("Enquiry number:"), sg.InputText(default_text=tdyr, size=2, 
             sg.FileBrowse(file_types=(("Shapefile", "*.SHP"), ("MapInfo TAB", "*.TAB"),))],
            [sg.Text('-AND-')],
            [sg.Text("Search Radius (in metres)"), sg.Input(size=12, key="-RADIUS-", enable_events=True)],
-           [sg.Text("Please specify a search area", text_color='red', key="-DIALOGUE-", enable_events=True)],
-           [sg.Text("Please specify search parameters", text_color='red', key="-SEARCHSTATUS-", enable_events=True)]]
+           [sg.Text("Please specify a search area", text_color='red', key="-DIALOGUE-", enable_events=True)]]
 
-
+# Specify values for second column of GUI
 column2 = [[sg.Text('Select search parameters', font=("Helvetica", 15))],
            [sg.Checkbox('Species', default=False, key="-SPP-", enable_events=True)],
            [sg.Checkbox('Bats only', default=False, key="-BATS-", enable_events=True)],
            [sg.Checkbox('GCN only', default=False, key="-GCN-", enable_events=True)],
            [sg.Checkbox('Invasives', default=False, key="-INV-", enable_events=True)],
            [sg.Checkbox('Sites', default=False, key="-SITES-", enable_events=True)],
-           [sg.Checkbox('Species and Sites', default=False, key="-SITESSPP-", enable_events=True)]]
+           [sg.Checkbox('Species and Sites', default=False, key="-SITESSPP-", enable_events=True)],
+           [sg.Text("Please specify search parameters", text_color='red', key="-SEARCHSTATUS-", enable_events=True)]]
 
-layout = [[sg.Text('Enquiry creator tool', font=("Helvetica", 25))],
+# Define the GUI layout
+layout = [[sg.Text('Ecological data enquiry tool', font=("Helvetica", 25))],
+          [sg.Text('A tool for the production of ecological data searches', font=("helvetica", 12))],
+          [sg.Text('Specify a search area and radius on the left and select the parameters for the search on the right.'
+                   ' The tool will produce a JPEG map and excel species list and save them in the specified folder.',
+                   size=(100, 3), font=("helvetica", 12))],
           [sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key="-PROCEED-"), sg.CloseButton('Cancel', key="-CANCEL-")]]
 
-# put gui elements in a window
-window = sg.Window("Data Search Enquiry", layout, margins=(200, 100))
+# Build the GUI window
+window = sg.Window("Data Search Enquiry", layout, margins=(50, 50))
+
 
 # Declare functions from within the GUI
-
-
+# noinspection PyUnboundLocalVariable
 def rastermosaic():
-    '''
-    mosaic raster tiles to form the basemap for the map plot
+    """
+    Returns a mosaic of raster tiles to form the basemap for the map plot. Only required to run once to produce
+    the basemap, once this is produced the function is no longer required.
     :return:
-    '''
+    """
 
     path = Path('SampleData/basemaps/')  # folder path to basemap tifs
     Path('output').mkdir(parents=True, exist_ok=True)  # create output directory
@@ -75,19 +82,19 @@ def rastermosaic():
     raster_to_mosiac = []  # create empty list to hold tif names
 
     for p in raster_files:  # loop through raster files in folder and append to one another in empty list defined above
-        raster = rio.open(p)
-        raster_to_mosiac.append(raster)
+        bm = rio.open(p)
+        raster_to_mosiac.append(bm)
 
     mosaic, output = merge(raster_to_mosiac)  # Merge tifs in folder together using populated list
 
-    output_meta = raster.meta.copy()  # create a copy of each rasters metadata
+    output_meta = bm.meta.copy()  # create a copy of each rasters metadata
 
     output_meta.update(  # update the metadata values to match values of the mosaic
         {"driver": "GTiff",
-        "height": mosaic.shape[1],
-        "width": mosaic.shape[2],
-        "transform": output,
-        "crs": "EPSG:27700"})
+            "height": mosaic.shape[1],
+            "width": mosaic.shape[2],
+            "transform": output,
+            "crs": "EPSG:27700"})
 
     # write mosaic to folder
     with rio.open(output_path, mode='w', ** output_meta) as m:
@@ -105,21 +112,32 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
     buffer_area value is in metres
 
-    :arg xin
+    :arg xin easting values as int or flt
 
-    :arg: yin
+    :arg yin northing values as int or flt
 
-    :arg buffer_radius
+    :arg buffer_radius required buffer in metres, value as either int or flt
     """
 
     userpoint = Point(xin, yin) # shapely geometry
     bufferGeom = userpoint.buffer(buffer_radius, resolution=50) # shapely geometry for running search
 
-    # convert to geoseries for mapping in matplotlib
+    # Convert to geoseries for mapping in matplotlib
     userfeat = gpd.GeoSeries(Point(xin, yin)).set_crs(epsg=27700, inplace=True)
     userbuffer = gpd.GeoSeries(userfeat.buffer(buffer_radius, resolution=50)).set_crs(epsg=27700, inplace=True)
 
-    return userfeat, userbuffer, bufferGeom
+    # Plot the point and buffer
+    userbuffer.plot(ax=ax, color='none', edgecolor='red')
+    userfeat.plot(ax=ax, marker='*', color='red', markersize=20)
+
+    # Create handles for legend
+    userpoint_handle = mlines.Line2D([], [], linestyle='None', marker='*', color='red', label='User point')
+    userbuffer_handle = mpatches.Patch(facecolor='None', edgecolor='red', label='Search buffer')
+
+    # Combine legend items
+    input_handles = [userpoint_handle, userbuffer_handle]
+
+    return userfeat, userbuffer, bufferGeom, input_handles
 
 
 def searcharea_frompoly(user_polypath, buffer_radius):
@@ -132,7 +150,18 @@ def searcharea_frompoly(user_polypath, buffer_radius):
     userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))  # buffer user file with user input buffer (for plotting)
     bufferGeom = union.buffer(buffer_radius) # Create shapely geometry to carry out intersects
 
-    return userfile, userbuffer, bufferGeom
+    userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
+    userbuffer.plot(ax=ax, color='none', edgecolor='red', linewidth=1.5)
+
+    userpoly_handle = mpatches.Patch(facecolor='None', hatch='//', edgecolor='blue',
+                                label='Search area')
+
+    userbuffer_handle = mpatches.Patch(facecolor='None', edgecolor='red',
+                                label='Search buffer')
+
+    input_handles = [userpoly_handle, userbuffer_handle]
+
+    return userfile, userbuffer, bufferGeom, input_handles
 
 
 def searchSpecies():
@@ -246,6 +275,7 @@ def sppstyle():
 
     return spptypes, spplegend
 
+
 def searchBats():
     """
     function to carry out a bats search based on input parameters
@@ -330,11 +360,11 @@ def searchInvasive():
 
 
 def searchSites():
-    '''
+    """
     function to carry out a nature conservation sites search based on input parameters
     note the buffer must be a shapely geometry feature as intersecting two GeoDataFrames requires equal indexes
     :return:
-    '''
+    """
 
     # Search for sites which intersect the buffer area
     sbiIntersect = sbilayer[sbilayer.intersects(buffer_feature, align=True)]
@@ -370,9 +400,9 @@ def searchSites():
 
 
 def load_basemap(filepath):
-    '''
+    """
     This is where you should write a docstring.
-    '''
+    """
     with rio.open(filepath) as dataset:
         img = dataset.read()
         bmxmin, bmymin, bmxmax, bmymax = dataset.bounds
@@ -381,7 +411,6 @@ def load_basemap(filepath):
     dispimg = dispimg.transpose([1, 2, 0])
 
     return bmxmin, bmymin, bmxmax, bmymax, dispimg
-
 
 
 # Load files to search from
@@ -394,7 +423,7 @@ invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
 invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
 
 # Setup CRS of the axis
-myCRS = ccrs.epsg(27700) # Set project CRS to British National Grid, matches the CRS of datafiles
+myCRS = ccrs.epsg(27700)  # Set project CRS to British National Grid, matches the CRS of datafiles
 
 # load basemap
 # return extent values from load_basemap function
@@ -403,7 +432,13 @@ bmxmin, bmymin, bmxmax, bmymax, basemap = load_basemap('output/mosaic.tif')
 basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS}
 
 
+
+
+
+
+
 # Begin GUI event loop
+
 while True:
     event, values = window.read()
     print(values)
@@ -413,7 +448,6 @@ while True:
         print('User cancelled')
         break
 
-# TODO - bugfix value missing errors.
     # Check to see if the buffer radius is an integer to prevent early error termination
     if values["-RADIUS-"]:
         text = values["-RADIUS-"]
@@ -438,16 +472,13 @@ while True:
         continue
 
     # First produce map plot and map furniture if the user clicks proceed
-    if event == "-PROCEED-": # Only call map when proceed has been pressed
+    if event == "-PROCEED-":  # Only call map when proceed has been pressed
         # create empy axis
-        cm = 1/2.54
+        cm = 1/2.54  # convert inches to cm to create A4 plot size
         fig, ax = plt.subplots(1, 1, figsize=(21*cm, 29.7*cm), subplot_kw=dict(projection=myCRS))
-        box = ax.get_position()
         ax.imshow(basemap, **basemap_kwargs, cmap='gray')
-        ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                         box.width, box.height * 0.9])
         ax.add_artist(ScaleBar(1))  # Add scalebar
-        # Add gridlines - currently epsg projections not supported in cartopy 0.18.
+        # Add gridlines - NOTE: currently epsg projections not supported in cartopy 0.18.
         gridlines = ax.gridlines(draw_labels=True)
         gridlines.right_labels = False
         gridlines.bottom_labels = False
@@ -471,17 +502,17 @@ while True:
         northing = float(values["-NORTHING-"])
 
         if event == "-PROCEED-":
-            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-            userbuffer.plot(ax=ax, color='none', edgecolor='black')
-            point.plot(ax=ax, marker='*', color='red', markersize=20)
-            xmin, ymin, xmax, ymax = userbuffer.bounds
+            point, userbuffer, buffer_feature, input_handles = searcharea_frompoint(easting, northing, buffer_radius)
+            xmin, ymin, xmax, ymax = buffer_feature.bounds
+            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
+            ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     # Create buffer from BNG grid reference
     elif values["-GRIDREF-"] and values["-RADIUS-"]:
         window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
         buffer_radius = float(values["-RADIUS-"])
         gridref = str(values["-GRIDREF-"])
-        if len(gridref) % 2 == 1: # Handle errors with invalid grid reference lengths
+        if len(gridref) % 2 == 1:  # Handle errors with invalid grid reference lengths
             sg.popup('not a valid grid reference length')
             continue
         else:
@@ -490,9 +521,10 @@ while True:
             northing = gridref[1]  # get northing from grid ref
 
         if event == "-PROCEED-":
-            point, userbuffer, buffer_feature = searcharea_frompoint(easting, northing, buffer_radius)
-            userbuffer.plot(ax=ax, color='none', edgecolor='black')
-            point.plot(ax=ax, marker='*', color='red', markersize=20)
+            point, userbuffer, buffer_feature, input_handles = searcharea_frompoint(easting, northing, buffer_radius)
+            xmin, ymin, xmax, ymax = buffer_feature.bounds
+            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
+            ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
@@ -500,25 +532,25 @@ while True:
         buffer_radius = float(values["-RADIUS-"])
 
         if event == "-PROCEED-":
-            userpoly, userbuffer, buffer_feature = searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
-            userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
-            userbuffer.plot(ax=ax, color='none', edgecolor='black')
+            userpoly, userbuffer, buffer_feature, input_handles = \
+                    searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
             xmin, ymin, xmax, ymax = buffer_feature.bounds
-            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of feature
+            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
             ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
-    else: # Reset prompt to ask user for search area
+    else:  # Reset prompt to ask user for search area
         window["-DIALOGUE-"].update('Please specify a search area', text_color='red')
 
     # Search for all protected species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()
         spptypes, spplabels = sppstyle()
-        leg = fig.legend(handles=spplabels, loc='lower center', bbox_to_anchor=(0.5, 0),
+        handles = input_handles + spplabels
+        leg = fig.legend(handles=handles, loc='lower center', bbox_to_anchor=(0.5, 0),
                          title='Legend', title_fontsize=14, ncol=4, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
         # Save output to excel file in user specified folder
-        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'SpeciesSearchResults.xlsx')
+        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_SpeciesSearchResults.xlsx')
         # Update window to tell user search was completed
         window["-SEARCHSTATUS-"].update('Species search completed')
 
@@ -528,79 +560,82 @@ while True:
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
         gcnSearch, gcnOutput, gcn_labels = searchGCNs()
+        handles = input_handles + gcn_labels
         gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
-        leg = fig.legend(handles=gcn_labels, loc='upper center', bbox_to_anchor=(0.5, -0.05), title='Legend',
+        leg = fig.legend(handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.05), title='Legend',
                          title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')
         # Save output to excel file in user specified folder
-        gcnOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'GCNSearchResults.xlsx')
+        gcnOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_GCNSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Species search completed')
+        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')
 
     elif values["-GCN-"]:
-        window["-SEARCHSTATUS-"].update('GCN search selected')
+        window["-SEARCHSTATUS-"].update('GCN search selected', text_color='green')
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
         batSearch, batOutput, bat_labels = searchBats()
+        handles = input_handles + bat_labels
         batSearch.plot(ax=ax, marker='^', color='deepskyblue', edgecolor='black')
         leg = fig.legend(handles=bat_labels, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' bats map')
         # Save output to excel file in user specified folder
-        batOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'BatsSearchResults.xlsx')
+        batOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_BatsSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Species search completed')
+        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')
 
     elif values["-BATS-"]:
-        window["-SEARCHSTATUS-"].update('Bat search selected')
+        window["-SEARCHSTATUS-"].update('Bat search selected', text_color='green')
 
     # Search for invasive species only - note these are not supposed to plot to map
     if values["-INV-"] and event == "-PROCEED-":
         invSearch, invOutput = searchInvasive()
         # invSearch.plot(ax=ax, marker='.', color='black')
         # Save output to excel file in user specified folder
-        invOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] +'InvasiveSearchResults.xlsx')
+        invOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_InvasiveSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Species search completed')
+        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')
 
     elif values["-INV-"]:
-        window["-SEARCHSTATUS-"].update('Bat search selected')
+        window["-SEARCHSTATUS-"].update('Bat search selected', text_color='green')
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
         sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites()
-        leg = fig.legend(handles=site_labels, title='Legend', title_fontsize=14, ncol=3,
+        handles = input_handles + site_labels
+        leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' nature conservation sites map')
         # Save output to excel file in user specified folder
-        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
+        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_SitesSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Species search completed')
+        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')
 
     elif values["-SITES-"]:
-        window["-SEARCHSTATUS-"].update('Sites only search selected')
+        window["-SEARCHSTATUS-"].update('Sites only search selected', text_color='green')
 
     # Search for sites and species
     if values["-SITESSPP-"] and event == "-PROCEED-":
         sppSearch, sppConcat, sppOutput = searchSpecies()  # run spp search
         spptypes, spplabels = sppstyle()  # plot spp, style and return labels
         sbiIntersect, basIntersect, sites_labels, sitesOutput = searchSites()  # sites search, plot, return handles
-        handles = sites_labels + spplabels  # Create list of spp and sites handles
+        handles = input_handles + sites_labels + spplabels  # Create list of spp and sites handles
         # Create legend
         leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' protected species and nature conservation sites map')
 
         # Save output to excel file in user specified folder
-        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SpeciesSearchResults.xlsx')
+        sppOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_SpeciesSearchResults.xlsx')
         # Save output to excel file in user specified folder
-        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'SitesSearchResults.xlsx')
+        sitesOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_SitesSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Sites and species search completed')
+        window["-SEARCHSTATUS-"].update('Sites and species search completed', text_color='green')
 
     elif values["-SITESSPP-"]:
-        window["-SEARCHSTATUS-"].update('Sites and species search selected')
+        window["-SEARCHSTATUS-"].update('Sites and species search selected', text_color='green')
 
     valuelist = [values]
 
