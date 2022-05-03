@@ -2,7 +2,7 @@
 Script and data submission for assignment
 
 ## 1. What is the program for?
-The purpose of this program is to automate spatial ecological data searches for use in environmental impact assessments. Data searches are systematic but the required input and output information will vary between each search. Generally data searches are conducted using an input feature consisting of either a polygon, point or line and a specified distance buffer. The data required as an output as part of the search also differs based on requirements for example looking for species OR nature connservation sites OR both, or possibly a subset of certain protected species for example.
+The purpose of this program is to automate spatial ecological data searches for use in environmental impact assessments. Ecological data searches are systematic but the required input and output information will vary between each search. Data searches are conducted using an input feature consisting of either a polygon, point or line and a specified distance buffer. The output requirements data searches also differ depending on the impacts which are being measured, for example some may require species OR nature connservation sites OR both, or possibly a subset of certain protected species for example.
 
 This program allows the user to input a grid reference, shapefile or mapinfo TAB file as their area of interest, specify a buffer radius (in metres) and select the output data required for the search.
 
@@ -23,7 +23,9 @@ The program can also be run using an IDE of your choice. This will load the GUI 
 
 To use the code `git` and `conda` first need to be installed, along with an IDE of your choosing (The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE).
 
-Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system.
+Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system. You may also wish to install [GitHub Desktop](https://desktop.github.com/) which will allow you to save your changes locally before commiiting them to your remote repository.
+ 
+ 
  
 
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
@@ -31,6 +33,8 @@ As the size of the master datasets the program is designed to work with would be
 
 
 When using the tool with the example data the user must restrict input searches to this geographic area
+
+image
 
 By default 
 
