@@ -1,12 +1,32 @@
 # egm722 programming for GIS and remote sensing
-script and data for assessment
+Script and data submission for assignment
 
 ## 1. What is the program for?
 The purpose of this program is to automate spatial ecological data searches for use in environmental impact assessments. Data searches are systematic but the required input and output information will vary between each search. Generally data searches are conducted using an input feature consisting of either a polygon, point or line and a specified distance buffer. The data required as an output as part of the search also differs based on requirements for example looking for species OR nature connservation sites OR both, or possibly a subset of certain protected species for example.
 
 This program allows the user to input a grid reference, shapefile or mapinfo TAB file as their area of interest, specify a buffer radius (in metres) and select the output data required for the search.
 
-## 2. Guidance and geographic use limitations based on sample data provided for demonstration.
+## 2. Requirements and setup
+Two methods have been provided to run the tool:
+
+### 2.1 The standalone installer
+This has been developed for users who simply wish to run the tool and do not wish to use git, conda or an IDE.
+
+Download the 'standalone' zip folder to your desktop, unzip the folder and run the assignment.exe file. This should load a user interface with which the user can interact with the tool.
+
+Full instructions are provided in the download folder and 
+
+
+### 2.2 Using git, conda and an Integrated Development Environment (IDE) of your choice. 
+
+The program can also be run using an IDE of your choice. This will load the GUI in the same way as the standalone installation but run through your IDE terminal rather than from an .exe file.
+
+To use the code `git` and `conda` first need to be installed, along with an IDE of your choosing (The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE).
+
+Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system.
+ 
+
+## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
 As the size of the master datasets the program is designed to work with would be prohibitively large to supply for use, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
 
 
