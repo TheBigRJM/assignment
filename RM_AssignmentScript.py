@@ -73,8 +73,12 @@ window = sg.Window("Data Search Enquiry", layout, margins=(50, 50))
 def rastermosaic():
     """
     Returns a mosaic of raster tiles to form the basemap for the map plot. Only required to run once to produce
-    the basemap, once this is produced the function is no longer required.
-    :return:
+    the basemap, once this is produced the function is no longer required. Left in the program for reference
+    and for use if required again.
+
+    Returns:
+        output_path: Location and name of the created raster mosaic
+
     """
 
     path = Path('SampleData/basemaps/')  # folder path to basemap tifs
@@ -109,17 +113,25 @@ def rastermosaic():
 def searcharea_frompoint(xin, yin, buffer_radius):
 
     """
-    Creates a point and buffer based on the user inputted arguments.
+    Creates a point and buffer based on the user inputted arguments, point_x and point_y require pure
+    EPSG:27700 easting and northing, values. Buffer_area value is in metres
 
-    point_x and point_y require pure easting and northing values.
+    Parameters:
+        xin: easting values as int or flt
 
-    buffer_area value is in metres
+        yin: northing values as int or flt
 
-    :arg xin easting values as int or flt
+        buffer_radius: required buffer in metres, value as either int or flt
 
-    :arg yin northing values as int or flt
+    Returns:
 
-    :arg buffer_radius required buffer in metres, value as either int or flt
+        userfeat: Geoseries of the user inputted point
+
+        userbuffer: Geoseries of a user specified buffer around the user defined point
+
+        bufferGeom: Shapely geometry of the user defined buffer
+
+        input_handles: The style information for the point and buffer to add to map legend
     """
 
     userpoint = Point(xin, yin)  # shapely geometry
@@ -145,7 +157,13 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
 def searcharea_frompoly(user_polypath, buffer_radius):
     """
-    docstring
+    Creates a point and buffer based on the user inputted arguments.
+
+    point_x and point_y require pure easting and northing values.
+
+    buffer_area value is in metres
+
+
     """
 
     userfile = gpd.read_file(user_polypath)  # import user selected file
