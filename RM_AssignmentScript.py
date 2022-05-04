@@ -113,7 +113,7 @@ def rastermosaic():
 def searcharea_frompoint(xin, yin, buffer_radius):
 
     """
-    Creates a point and buffer based on the user inputted arguments, point_x and point_y require pure
+    Creates a point and buffer based on the user inputted grid reference. Point_x and point_y require pure
     EPSG:27700 easting and northing, values. Buffer_area value is in metres
 
     Parameters:
@@ -121,7 +121,7 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
         yin: northing values as int or flt
 
-        buffer_radius: required buffer in metres, value as either int or flt
+        buffer_radius: required buffer is required in metres, value as either int or flt
 
     Returns:
 
@@ -157,11 +157,23 @@ def searcharea_frompoint(xin, yin, buffer_radius):
 
 def searcharea_frompoly(user_polypath, buffer_radius):
     """
-    Creates a point and buffer based on the user inputted arguments.
+    Creates a buffer based on the user inputted polygon.
 
-    point_x and point_y require pure easting and northing values.
+    buffer_area value is required in metres, value as either int or flt.
 
-    buffer_area value is in metres
+    Parameters:
+        user_polypath: the filepath to the selected polygon
+
+        buffer_radius: required buffer is required in metres, value as either int or flt
+
+    Returns:
+        userfile: A Geodataframe of the file the user selects
+
+        userbuffer: Geoseries of a user specified buffer around the user defined point
+
+        bufferGeom: Shapely geometry of the user defined buffer
+
+        input_handles: The style information for the point and buffer to add to map legend
 
 
     """
@@ -187,7 +199,19 @@ def searcharea_frompoly(user_polypath, buffer_radius):
 
 def searchSpecies():
     """
-    function to carry out a species search based on input parameters
+    Carries out a protected species search based on the users input parameters. No input arguments are specified
+    as the inputs are read directly from variables within the main script.
+
+    Returns:
+        sppSearch: Geodataframe containing the results of an intersection between a dataframe containing protected
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions.
+        This is used for plotting on the map
+
+        sppConcat: Concatenated results of protected species 100m+ and 1km precision data searches
+
+        sppOutput: Concatenated results of protected species 100m+ and 1km precision data searches with
+        extraneous columns removed.
+
     """
 
     df = specieslayer
@@ -212,8 +236,15 @@ def searchSpecies():
 
 def sppstyle():
     """
-    docstring
-    :return:
+    Styles and plots the results of the protected species search on a map axis, creates label handles which match
+    the species styles.
+    No input arguments are specified as the inputs are read directly from variables within the main script.
+
+    Returns:
+        spptypes: a list of Geodataframe plots, plotting species search results
+
+        spplegend: a list of legend handles matching the style of the axis plots
+
     """
 
     mammal = sppSearch[(sppSearch['InformalGr'] == 'mammal') & ~(sppSearch['CommonName'] == 'Otter')
@@ -293,7 +324,10 @@ def sppstyle():
 
 def searchBats():
     """
-    function to carry out a bats search based on input parameters
+    Carries out a bat species search based on the users input parameters. No input arguments are specified
+    as the inputs are read directly from variables within the main script.
+
+
     """
     df = specieslayer
     df1km = species1kmlayer
