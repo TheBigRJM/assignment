@@ -1,11 +1,11 @@
 - list of items still to do
 
-- [] basemap import or through opensource - openmap local from OS (
+- [x] basemap import or through opensource - openmap local from OS (
 - [x] export dfs to excel sheets (work out whether these can be imported to templates)
-- [] finish gui
-- [] debug ax labels
+- [x] finish gui
+- [x] debug ax labels
 - [x] invasive species - upload sample data and update function to work on new variables
-- [] labels for sites
+- [x] labels for sites
 - [x] Legend
 - [x] Save map
 - [x] edit gui to only accept shp files from browser
@@ -13,7 +13,7 @@
 - [x] select specific columns from sites search
 - [] finish docstrings for all delcred functions
 - [x] scalebar on axis
-- [] handling multiple image tiles in background map - or use vector data and colour appropriately.
+- [x] handling multiple image tiles in background map - or use vector data and colour appropriately.
 
 
 tips:
