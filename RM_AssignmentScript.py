@@ -58,7 +58,8 @@ column2 = [[sg.Text('Select search parameters', font=("Helvetica", 15))],
 layout = [[sg.Text('Ecological data enquiry tool', font=("Helvetica", 25))],
           [sg.Text('A tool for the production of ecological data searches', font=("helvetica", 12))],
           [sg.Text('Specify a search area and radius on the left and select the parameters for the search on the right.'
-                   ' The tool will produce a JPEG map and excel species list and save them in the specified folder.',
+                   ' The tool will produce a JPEG map and excel spreadsheets of the results and save them '
+                   'in the specified folder.',
                    size=(100, 3), font=("helvetica", 12))],
           [sg.Column(column1), sg.VSeparator(), sg.Column(column2)],
           [sg.Button('Proceed', key="-PROCEED-"), sg.CloseButton('Cancel', key="-CANCEL-")]]
@@ -408,7 +409,6 @@ def load_basemap(filepath):
 
     return bmxmin, bmymin, bmxmax, bmymax, dispimg
 
-
 # Load files to search from
 dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
@@ -435,9 +435,9 @@ basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS
 
 # Begin GUI event loop
 
-while True:
-    event, values = window.read()
-    print(values)
+while True: # Create an infinite loop which the GUI runs inside.
+    event, values = window.read()  # Read the layout detailed above and display as a window, track events and values
+    print(values)  # Prints the selected values to the console for debugging and error checking
 
     # Window close loop
     if event == sg.WIN_CLOSED or event == "-CANCEL-":
