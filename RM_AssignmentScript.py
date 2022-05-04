@@ -243,7 +243,7 @@ def sppstyle():
     Returns:
         spptypes: a list of Geodataframe plots, plotting species search results
 
-        spplegend: a list of legend handles matching the style of the axis plots
+        spplegend: a list of legend handles matching the style of the axis plots (proxy artist)
 
     """
 
@@ -280,7 +280,6 @@ def sppstyle():
         .plot(ax=ax, marker='o', color='green', edgecolor='black')
 
     # Create proxy artist entries to create legend list
-
     mammal_handle = mlines.Line2D([], [], marker='^', color='None', markeredgecolor='red', markeredgewidth=2,
                                   linestyle='None', label='Mammal')
 
@@ -327,16 +326,28 @@ def searchBats():
     Carries out a bat species search based on the users input parameters. No input arguments are specified
     as the inputs are read directly from variables within the main script.
 
+    Returns:
+        batSearch:Geodataframe containing the results of an intersection between a dataframe containing protected
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions.
+        This is used for plotting on the map
+
+        batOutput:  Concatenated results of bat species 100m+ and 1km precision data searches
+
+        bats_handle: Concatenated results of bat species 100m+ and 1km precision data searches with
+        extraneous columns removed.
 
     """
     df = specieslayer
     df1km = species1kmlayer
-    batrecs = df[df['InformalGr'] == 'mammal - bat']
+    # Run search on spp records <= 100m precision
+    batrecs = df[df['InformalGr'] == 'mammal - bat']  # Filter where value from informal group column = bats
     batSearch = batrecs[batrecs.intersects(buffer_feature, align=True)]
 
-    batrecs1km = df1km[df1km['InformalGr'] == 'mammal - bat']
+    # Run 1km data species search
+    batrecs1km = df1km[df1km['InformalGr'] == 'mammal - bat']  # Filter where value from informal group column = bats
     batsearch1km = batrecs1km[batrecs1km.intersects(buffer_feature, align=True)]
 
+    # Concatenate the 1km and <=100m species records search results
     batConcat = pd.concat([batSearch, batsearch1km])
 
     # Remove extraneous columns for GDPR
@@ -356,7 +367,19 @@ def searchBats():
 
 def searchGCNs():
     """
-    function to carry out a Great Crested Newt search based on input parameters
+    Carries out a Great Crested Newt (GCN) species search based on the users input parameters.
+    No input arguments are specified as the inputs are read directly from variables within the main script.
+
+    Returns:
+        gcnSearch:Geodataframe containing the results of an intersection between a dataframe containing protected
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions.
+        This is used for plotting on the map
+
+        gcnOutput:  Concatenated results of gcn species 100m+ and 1km precision data searches
+
+        gcn_handle: Concatenated results of gcn species 100m+ and 1km precision data searches with
+        extraneous columns removed.
+
     """
     df = specieslayer
     df1km = species1kmlayer
@@ -410,9 +433,11 @@ def searchInvasive():
 
 def searchSites():
     """
-    function to carry out a nature conservation sites search based on input parameters
+    Carry out a nature conservation sites search based on input parameters
     note the buffer must be a shapely geometry feature as intersecting two GeoDataFrames requires equal indexes
-    :return:
+
+
+
     """
 
     # Search for sites which intersect the buffer area
