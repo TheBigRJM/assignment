@@ -2,9 +2,9 @@
 Script and data submission for assignment
 
 ## 1. What is the program for?
-The purpose of this program is to automate spatial ecological data searches for use in environmental impact assessments. Ecological data searches are systematic but the required input and output information will vary between each search. Data searches are conducted using an input feature consisting of either a polygon, point or line and a specified distance buffer. The output requirements data searches also differ depending on the impacts which are being measured, for example some may require species OR nature connservation sites OR both, or possibly a subset of certain protected species for example.
+The purpose of this program is to provide a tool to automate spatial ecological data searches for use in environmental impact assessments. Ecological data searches are systematic but the required input and output information will vary between each search. Data searches are conducted using an input feature consisting of either a polygon, point or line and a specified distance buffer. The output requirements data searches also differ depending on the impacts which are being measured, for example some may require protectec species information OR nature connservation sites information OR both, or in some cases a subset of certain protected species groups.
 
-This program allows the user to input a grid reference, shapefile or mapinfo TAB file as their area of interest, specify a buffer radius (in metres) and select the output data required for the search.
+The tool allows the user to input a grid reference, shapefile or mapinfo TAB file as the target location, specify a buffer radius (in metres) to generate their area of interest and select the output data required for the search.
 
 ## 2. Requirements and setup
 Two methods have been provided to run the tool:
@@ -14,18 +14,26 @@ This has been developed for users who simply wish to run the tool and do not wis
 
 Download the 'standalone' zip folder to your desktop, unzip the folder and run the assignment.exe file. This should load a user interface with which the user can interact with the tool.
 
-Full instructions are provided in the download folder and 
-
+An instruction manual of how to use the tool provided in the download folder, detailing the requirements of each field and what to avoid to prevent errors.
 
 ### 2.2 Using git, conda and an Integrated Development Environment (IDE) of your choice. 
 
-The program can also be run using an IDE of your choice. This will load the GUI in the same way as the standalone installation but run through your IDE terminal rather than from an .exe file.
+For users who wish to have access to the back-end script for debugging or adaptating, the program can also be run using the terminal in an IDE of your choice. This will load the GUI in the same way as the standalone installation but run through your IDE terminal rather than from an .exe file.
 
-To use the code `git` and `conda` first need to be installed, along with an IDE of your choosing (The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE).
+If you wish to use the tool in this way you will first need to install `git` and `conda, along with an IDE (if you don't already have these installed. The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE.
 
-Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system. You may also wish to install [GitHub Desktop](https://desktop.github.com/) which will allow you to save your changes locally before commiiting them to your remote repository.
+Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system. You may also wish to install [GitHub Desktop](https://desktop.github.com/) which will allow you to save your changes locally before commiiting them to your remote repository should you wish to adapt the script.
+ 
+Once git and conda are installed you will need to fork the repository to your own git and clone this repository to locally to your computer. 
+
+To fork the repository to your own git account you will need to login to github and click fork in the top right of the window which will copy the files to a new repository on your account for you to work with.
+
+To clone Open github desktop on your pc and go to **File > Clone Repository** select **URL** and copy/paste the URL of **your** repository into the box. Alternatively, if you don't wish to install github desktop you can do this through gitbash (which should have been installed using the info above if you didn't already have this installed). Open gitbash using the start menu, navigate to the folder where you want to create a local repository for the files and enter
+
+`git clone https://github.com/.git`
  
  
+ `C:\your\foldeer\path> conda env create -f environment.yml`
  
 
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
