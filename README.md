@@ -30,14 +30,17 @@ To fork the repository to your own git account you will need to login to github 
 
 To clone Open github desktop on your pc and go to **File > Clone Repository** select **URL** and copy/paste the URL of **your** repository into the box. Alternatively, if you don't wish to install github desktop you can do this through gitbash (which should have been installed using the info above if you didn't already have this installed). Open gitbash using the start menu, navigate to the folder where you want to create a local repository for the files and enter `git clone https://github.com/TheBigRJM/assignment.git` to get the files.
  
-Once you hhave the files locally you can now create the working environment using Anaconda using the environment.yml file provided in the repository. Open Anaconda Navigator and head to the environments tab and click on the import button at the bottom, click on the foler icon and navigate to the environment.yml file in your recently cloned folder. This should automatically populate the environment name. Click import, Anaconda should now begin installing the dependencies which the program needs to run. Alternatively you can use Anaconda cmd prompt to create the environment using: `C:\your\folder\path> conda env create -f environment.yml`.
- 
+Once you hhave the files locally you can now create the working environment using Anaconda using the environment.yml file provided in the repository. Open Anaconda Navigator and head to the environments tab and click on the import button at the bottom, click on the foler icon and navigate to the environment.yml file in your recently cloned folder. This should automatically populate the environment name. Click import, Anaconda should now begin installing the dependencies which the program needs to run. Alternatively you can use Anaconda cmd prompt to create the environment using: `C:\your\folder\path> conda env create -f environment.yml`. 
+
+Once you have this setup you can then use an IDE of your choice to run the program using the newly created environment.
+
 
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
-As the size of the master datasets the program is designed to work with would be prohibitively large to supply for use, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
+As the size of the master datasets the program is designed to work with would be prohibitively large to supply for example sure, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
 
 
-When using the tool with the example data the user must restrict input searches to this geographic area
+
+When using the tool with the example data the user must limit the inputs using the grid ref, easting/northing and polygon search capabilities to these extents.
 
 image
 
