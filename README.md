@@ -28,12 +28,9 @@ Once git and conda are installed you will need to fork the repository to your ow
 
 To fork the repository to your own git account you will need to login to github and click fork in the top right of the window which will copy the files to a new repository on your account for you to work with.
 
-To clone Open github desktop on your pc and go to **File > Clone Repository** select **URL** and copy/paste the URL of **your** repository into the box. Alternatively, if you don't wish to install github desktop you can do this through gitbash (which should have been installed using the info above if you didn't already have this installed). Open gitbash using the start menu, navigate to the folder where you want to create a local repository for the files and enter
-
-`git clone https://github.com/.git`
+To clone Open github desktop on your pc and go to **File > Clone Repository** select **URL** and copy/paste the URL of **your** repository into the box. Alternatively, if you don't wish to install github desktop you can do this through gitbash (which should have been installed using the info above if you didn't already have this installed). Open gitbash using the start menu, navigate to the folder where you want to create a local repository for the files and enter `git clone https://github.com/TheBigRJM/assignment.git` to get the files.
  
- 
- `C:\your\foldeer\path> conda env create -f environment.yml`
+Once you hhave the files locally you can now create the working environment using Anaconda using the environment.yml file provided in the repository. Open Anaconda Navigator and head to the environments tab and click on the import button at the bottom, click on the foler icon and navigate to the environment.yml file in your recently cloned folder. This should automatically populate the environment name. Click import, Anaconda should now begin installing the dependencies which the program needs to run. Alternatively you can use Anaconda cmd prompt to create the environment using: `C:\your\folder\path> conda env create -f environment.yml`.
  
 
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
