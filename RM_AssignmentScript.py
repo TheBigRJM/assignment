@@ -328,8 +328,8 @@ def searchBats():
 
     Returns:
         batSearch:Geodataframe containing the results of an intersection between a dataframe containing protected
-        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions.
-        This is used for plotting on the map
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions,
+        filtered to contain only bat records.
 
         batOutput:  Concatenated results of bat species 100m+ and 1km precision data searches
 
@@ -372,8 +372,8 @@ def searchGCNs():
 
     Returns:
         gcnSearch:Geodataframe containing the results of an intersection between a dataframe containing protected
-        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions.
-        This is used for plotting on the map
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions,
+        filtered to contain only GCN records.
 
         gcnOutput:  Concatenated results of gcn species 100m+ and 1km precision data searches
 
@@ -383,12 +383,16 @@ def searchGCNs():
     """
     df = specieslayer
     df1km = species1kmlayer
-    gcnrecs = df[df['CommonName'] == 'Great Crested Newt']
+
+    # Run search on spp records <= 100m precision
+    gcnrecs = df[df['CommonName'] == 'Great Crested Newt']   # Filter where value from Common Name column = GCN
     gcnSearch = gcnrecs[gcnrecs.intersects(buffer_feature, align=True)]
 
-    gcnrecs1km = df1km[df1km['CommonName'] == 'Great Crested Newt']
+    # Run 1km data species search
+    gcnrecs1km = df1km[df1km['CommonName'] == 'Great Crested Newt']  # Filter where value from Common Name column = GCN
     gcnsearch1km = gcnrecs1km[gcnrecs1km.intersects(buffer_feature, align=True)]
 
+    # Concatenate the 1km and <=100m species records search results
     gcnConcat = pd.concat([gcnSearch, gcnsearch1km])
 
     # Remove extraneous columns for GDPR
@@ -407,8 +411,16 @@ def searchGCNs():
 
 def searchInvasive():
     """
-    function to carry out an Invasive Species search based on input parameters
-    :return:
+    Carries out a Great Crested Newt (GCN) species search based on the users input parameters.
+    No input arguments are specified as the inputs are read directly from variables within the main script.
+
+    Returns:
+        invSearch:Geodataframe containing the results of an intersection between a dataframe containing protected
+        species data and the buffer geometry created from the searcharea_frompoint or searcharea_frompoly functions,
+        filtered to contain only invasive species records.
+
+        invOutput:  Concatenated results of invasive species 100m+ and 1km precision data searches
+
     """
 
     df = invasivespecies
@@ -433,9 +445,19 @@ def searchInvasive():
 
 def searchSites():
     """
-    Carry out a nature conservation sites search based on input parameters
-    note the buffer must be a shapely geometry feature as intersecting two GeoDataFrames requires equal indexes
+    Carries out a Nature Conservation Site search based on the users input parameters.
+    No input arguments are specified as the inputs are read directly from variables within the main script.
 
+    Returns:
+        sbiIntersect: Geodataframe containing the list of Site of Biological Importance (SBI) intersecting the
+        users buffer radius.
+
+        basIntersect: Geodataframe containing the list of Biodiversity Alert Sites (BAS) intersecting the
+        users buffer radius.
+
+        site_handles: a list of legend handles matching the style of the search plots (proxy artist)
+
+        sitesOutput: Concatenation of sbiIntersect and basIntersect
 
 
     """
@@ -475,7 +497,22 @@ def searchSites():
 
 def load_basemap(filepath):
     """
-    This is where you should write a docstring.
+    Loads a raster basemap into the axis plot.
+
+    Parameters:
+        filepath: location of the raster dataset
+
+    Returns:
+        bmxmin: x-axis minimum extent values from basemap
+
+        bmymin: y-axis minimum extent values from basemap
+
+        bmxmax: x-axis maximum extent values from basemap
+
+        bmymax: y-axis maximum extent values from basemap
+
+        dispimg: the basemap image
+
     """
     with rio.open(filepath) as dataset:
         img = dataset.read()
@@ -510,7 +547,7 @@ basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS
 
 
 
-# Begin GUI event loop
+##### Begin GUI event loop #####
 
 while True: # Create an infinite loop which the GUI runs inside.
     event, values = window.read()  # Read the layout detailed above and display as a window, track events and values
@@ -564,8 +601,6 @@ while True: # Create an infinite loop which the GUI runs inside.
                     ha='center', va='center', fontsize=15,
                     xycoords=ax.transAxes)
         plt.tight_layout()
-
-# TODO: Add basemap to axis
 
     # Create buffer from user specified point
     if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
