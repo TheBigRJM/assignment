@@ -7,16 +7,8 @@ The purpose of this program is to provide a tool to automate spatial ecological 
 The tool allows the user to input a grid reference, shapefile or mapinfo TAB file as the target location, specify a buffer radius (in metres) to generate their area of interest and select the output data required for the search.
 
 ## 2. Requirements and setup
-Two methods have been provided to run the tool:
 
-### 2.1 The standalone installer
-This has been developed for users who simply wish to run the tool and do not wish to use git, conda or an IDE.
-
-Download the 'standalone' zip folder to your desktop, unzip the folder and run the assignment.exe file. This should load a user interface with which the user can interact with the tool.
-
-An instruction manual of how to use the tool provided in the download folder, detailing the requirements of each field and what to avoid to prevent errors.
-
-### 2.2 Using git, conda and an Integrated Development Environment (IDE) of your choice. 
+### Using git, conda and an Integrated Development Environment (IDE) of your choice. 
 
 For users who wish to have access to the back-end script for debugging or adaptating, the program can also be run using the terminal in an IDE of your choice. This will load the GUI in the same way as the standalone installation but run through your IDE terminal rather than from an .exe file.
 
@@ -34,19 +26,23 @@ Once you hhave the files locally you can now create the working environment usin
 
 Once you have this setup you can then use an IDE of your choice to run the program using the newly created environment.
 
-
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
-As the size of the master datasets the program is designed to work with would be prohibitively large to supply for example sure, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
+As the size of the master datasets the program is designed to work with would be prohibitively large to supply to demonstrate the tools function, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
 
-
-
-When using the tool with the example data the user must limit the inputs using the grid ref, easting/northing and polygon search capabilities to these extents.
+As the sample dataset only has a restricted geographic range please limit your data searches please limit the inputs using the grid ref, easting/northing and polygon search capabilities to within these extents (using EPSG:27700, British National Grid coordinates):
 
 image
 
-By default 
-
+The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file.
 
 ## 3. Running the tool
 
-The tool  has its own GUI and is intended to run as a standalone program using the .exe in the , but can also be run directly through the python terminal.
+If the repository is cloned to your locally using the instructions in step 2, the tool should be able to find the sample data without making any changes to to the body of code itself. If the elements of the repository have been downloaded separately and saved in separate locations you may need to redefine the file paths on lines 526-531 of the code to find these files to their file path on your machine.
+
+First ensure your IDE is using the interpreter environment for this project (this should have been setup in step 2) the tool can then be loaded using the terminal in your IDE, within the terminal navigate to your local repository and type: `ipython RM_AssignmentScript.py`, this should open a separate python window called 'Data Search Enquiry'. The tool has been designed so that all the user interaction is done via a GUI as it will mainly be used by people with little or no experience of programming and is therefore more user friendly.
+
+All user interaction should be done using the GUI and not using the terminal, however the terminal should not be closed as this will also close the GUI.
+
+A full instruction manual detailing what the tool is doing and what information is required for each of the fields has also been provided within this repository.
+
+
