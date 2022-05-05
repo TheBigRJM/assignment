@@ -35,7 +35,7 @@ https://gridreferencefinder.com/#gr=SJ8000030000|SJ800300|1,SJ8000040000|SJ80040
 
 ![SampleAreaCoordinates](https://user-images.githubusercontent.com/101205549/166978597-b46de77d-4817-4037-a23e-7b861344eefd.jpg)
 
-The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file `assignment/SampleData/example search area/`.
+The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file `assignment/SampleData/example search area/ExampleBoundarySearch_region.shp`.
 
 ## 3. Running the tool
 
