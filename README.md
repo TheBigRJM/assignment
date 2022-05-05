@@ -35,7 +35,7 @@ https://gridreferencefinder.com/#gr=SJ8000030000|SJ800300|1,SJ8000040000|SJ80040
 
 ![SampleAreaCoordinates](https://user-images.githubusercontent.com/101205549/166978597-b46de77d-4817-4037-a23e-7b861344eefd.jpg)
 
-The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file.
+The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file `assignment/SampleData/example search area/`.
 
 ## 3. Running the tool
 
@@ -46,5 +46,3 @@ First ensure your IDE is using the interpreter environment for this project (thi
 All user interaction should be done using the GUI and not using the terminal, however the terminal should not be closed as this will also close the GUI.
 
 A full instruction manual detailing what the tool is doing and what information is required for each of the fields has also been provided within this repository.
-
-
