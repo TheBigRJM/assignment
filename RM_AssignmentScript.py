@@ -673,25 +673,27 @@ while True:  # Create an  initial infinite loop which the GUI runs inside.
 
     # Search for GCN only
     if values["-GCN-"] and event == "-PROCEED-":
-        gcnSearch, gcnOutput, gcn_labels = searchGCNs()
-        handles = input_handles + gcn_labels
-        gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')
+        gcnSearch, gcnOutput, gcn_labels = searchGCNs()  # Call GCN search function
+        handles = input_handles + gcn_labels  # Combine user features and GCN handles
+        gcnSearch.plot(ax=ax, marker='o', color='yellow', edgecolor='black')  # Plot GCN search data to map
+        # Create legend
         leg = fig.legend(handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.05), title='Legend',
                          title_fontsize=14, ncol=3, fontsize=10, frameon=True, framealpha=1)
-        plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')
+        plt.suptitle(values["-SITENAME-"] + ' Great Crested Newt map')  # map title
         # Save output to excel file in user specified folder
         gcnOutput.to_excel(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + '_GCNSearchResults.xlsx')
         # Update window to tell user search was completed
-        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')
+        window["-SEARCHSTATUS-"].update('Species search completed', text_color='green')  # Update dialogue message
 
     elif values["-GCN-"]:
         window["-SEARCHSTATUS-"].update('GCN search selected', text_color='green')
 
     # Search for Bats only
     if values["-BATS-"] and event == "-PROCEED-":
-        batSearch, batOutput, bat_labels = searchBats()
-        handles = input_handles + bat_labels
-        batSearch.plot(ax=ax, marker='^', color='deepskyblue', edgecolor='black')
+        batSearch, batOutput, bat_labels = searchBats()  # Call bats search function
+        handles = input_handles + bat_labels  # Combine user features and bats handles
+        batSearch.plot(ax=ax, marker='^', color='deepskyblue', edgecolor='black')  # Plot bats search data to map
+        # Create legend
         leg = fig.legend(handles=bat_labels, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' bats map')
@@ -717,8 +719,8 @@ while True:  # Create an  initial infinite loop which the GUI runs inside.
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
-        sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites()
-        handles = input_handles + site_labels
+        sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites() # Call sites search function
+        handles = input_handles + site_labels  # Combine user features and sites handles
         leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' nature conservation sites map')
@@ -751,11 +753,12 @@ while True:  # Create an  initial infinite loop which the GUI runs inside.
     elif values["-SITESSPP-"]:
         window["-SEARCHSTATUS-"].update('Sites and species search selected', text_color='green')
 
-    valuelist = [values]
+    valuelist = [values]  # Create a list of all checkboxes in the GUI
 
     if valuelist == [None]:
+        # update GUI dialogue if no values detected
         window["-SEARCHSTATUS-"].update('Please specify search parameters', text_color='red')
 
-    # Save the map to user specified folder
+    # Save the completed map to user specified folder
     if event == "-PROCEED-":
         fig.savefig(values["-OUTFOLDER-"] + '/' + values["-ENQNO-"] + 'map.jpeg', bbox_inches='tight', dpi=300)
