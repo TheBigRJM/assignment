@@ -124,7 +124,6 @@ def searcharea_frompoint(xin, yin, buffer_radius):
         buffer_radius: required buffer is required in metres, value as either int or flt
 
     Returns:
-
         userfeat: Geoseries of the user inputted point
 
         userbuffer: Geoseries of a user specified buffer around the user defined point
@@ -524,13 +523,12 @@ def load_basemap(filepath):
     return bmxmin, bmymin, bmxmax, bmymax, dispimg
 
 # Load files to search from
-dboundary = gpd.read_file('SampleData/SHP/SampleDataSelector_rectangle.shp')
-specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')
-species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')
-sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')
-baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')
-invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')
-invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')
+specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')  # load species 100m+ layer
+species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')  # load pecies 1km layer
+sbilayer = gpd.read_file('SampleData/SHP/SBI_region.shp')  # load SBI layer
+baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')  # load BAS layer
+invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')  # load invasive species 100m+ layer
+invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')  # load invasive species 1km layer
 
 # Setup CRS of the axis
 myCRS = ccrs.epsg(27700)  # Set project CRS to British National Grid, matches the CRS of datafiles
@@ -547,79 +545,85 @@ basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS
 
 
 
-##### Begin GUI event loop #####
+##### GUI event loop #####
 
-while True: # Create an infinite loop which the GUI runs inside.
+while True:  # Create an  initial infinite loop which the GUI runs inside.
     event, values = window.read()  # Read the layout detailed above and display as a window, track events and values
     print(values)  # Prints the selected values to the console for debugging and error checking
 
     # Window close loop
-    if event == sg.WIN_CLOSED or event == "-CANCEL-":
+    if event == sg.WIN_CLOSED or event == "-CANCEL-":  # Close window if user presses X or cancel
         print('User cancelled')
         break
 
     # Check to see if the buffer radius is an integer to prevent early error termination
-    if values["-RADIUS-"]:
+    if values["-RADIUS-"]:  # Check to see is the user has entered radius info
         text = values["-RADIUS-"]
         try:
-            value = int(text)
-            print(f'Integer: {value}')
+            value = int(text)  # check to see if value is Int
+            print(f'Integer: {value}')  # print radius value to console for checking
         except:
             print("Not Integer")
-            sg.popup('buffer must be an integer value')
+            sg.popup('buffer must be an integer value')  # popup window - radius field requires an int value
             continue
 
-    if values["-ENQNO-"] == '' and event == "-PROCEED-":
-        sg.popup('enquiry number required')
+    # Ensure enquiry number field is populated
+    if values["-ENQNO-"] == '' and event == "-PROCEED-":  # Check to see if user has populated enquiry number field
+        sg.popup('enquiry number required')  # popup window - prompt user to enter enquiry number
         continue
 
-    if values["-SITENAME-"] == '' and event == "-PROCEED-":
-        sg.popup('site name required')
+    # Ensure Site Name field is populated
+    if values["-SITENAME-"] == '' and event == "-PROCEED-":  # Check to see if user has populated Site Name field
+        sg.popup('site name required')  # popup window - prompt user to enter site name
         continue
 
-    if values["-OUTFOLDER-"] == '' and event == "-PROCEED-":
-        sg.popup('output location required')
+    # Ensure the output save location field is populated
+    if values["-OUTFOLDER-"] == '' and event == "-PROCEED-":  # Check to see if user has populated Site Name field
+        sg.popup('output location required')  # popup window - prompt user to specify save location
         continue
 
     # First produce map plot and map furniture if the user clicks proceed
-    if event == "-PROCEED-":  # Only call map when proceed has been pressed
+    if event == "-PROCEED-":  # Only produce layout when user clicks proceed
         # create empy axis
         cm = 1/2.54  # convert inches to cm to create A4 plot size
+        # Create figure & plot
         fig, ax = plt.subplots(1, 1, figsize=(21*cm, 29.7*cm), subplot_kw=dict(projection=myCRS))
-        ax.imshow(basemap, **basemap_kwargs, cmap='gray')
+        ax.imshow(basemap, **basemap_kwargs, cmap='gray')  # add basemap with grayscale colourmap
         ax.add_artist(ScaleBar(1))  # Add scalebar
-        # Add gridlines - NOTE: currently epsg projections not supported in cartopy 0.18.
+        # Add gridlines - NOTE: currently epsg:27700 axis labels not supported in cartopy 0.18.
         gridlines = ax.gridlines(draw_labels=True)
         gridlines.right_labels = False
         gridlines.bottom_labels = False
 
         # Create north arrow
         # (source: https://stackoverflow.com/questions/58088841/how-to-add-a-north-arrow-on-a-geopandas-map)
-        x, y, arrow_length = 0.03, 0.98, 0.05
+        x, y, arrow_length = 0.03, 0.98, 0.05  # specify arrow size & location
         ax.annotate('N', xy=(x, y), xytext=(x, y - arrow_length),
                     arrowprops=dict(facecolor='black', width=5, headwidth=15),
                     ha='center', va='center', fontsize=15,
                     xycoords=ax.transAxes)
-        plt.tight_layout()
+        plt.tight_layout()  # tight layout to put elements closer together on figure.
 
     # Create buffer from user specified point
-    if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:
+    if values["-EASTING-"] and values["-NORTHING-"] and values["-RADIUS-"]:  # Only proceed if these values are
+        # selected
         window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
-        buffer_radius = float(values["-RADIUS-"])
-        easting = float(values["-EASTING-"])
-        northing = float(values["-NORTHING-"])
+        buffer_radius = float(values["-RADIUS-"])  # transform user buffer radius values into float
+        easting = float(values["-EASTING-"])  # transform user easting values into float
+        northing = float(values["-NORTHING-"])  # transform user easting values into float
 
         if event == "-PROCEED-":
+            # call function to produce buffer from easting/northing
             point, userbuffer, buffer_feature, input_handles = searcharea_frompoint(easting, northing, buffer_radius)
-            xmin, ymin, xmax, ymax = buffer_feature.bounds
-            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
+            xmin, ymin, xmax, ymax = buffer_feature.bounds  # get bounds of the buffer
+            # set the extent of the frame on the buffer with a 200m buffer to edge of axis
             ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     # Create buffer from BNG grid reference
-    elif values["-GRIDREF-"] and values["-RADIUS-"]:
+    elif values["-GRIDREF-"] and values["-RADIUS-"]:  # Only proceed if these values are selected
         window["-DIALOGUE-"].update('Point and buffer selected', text_color='green')
-        buffer_radius = float(values["-RADIUS-"])
-        gridref = str(values["-GRIDREF-"])
+        buffer_radius = float(values["-RADIUS-"])  # transform user buffer radius values into float
+        gridref = str(values["-GRIDREF-"])  # transform user Grid Ref into float
         if len(gridref) % 2 == 1:  # Handle errors with invalid grid reference lengths
             sg.popup('not a valid grid reference length')
             continue
@@ -629,20 +633,22 @@ while True: # Create an infinite loop which the GUI runs inside.
             northing = gridref[1]  # get northing from grid ref
 
         if event == "-PROCEED-":
+            # call function to create buffer from easting/northing
             point, userbuffer, buffer_feature, input_handles = searcharea_frompoint(easting, northing, buffer_radius)
-            xmin, ymin, xmax, ymax = buffer_feature.bounds
-            # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
+            xmin, ymin, xmax, ymax = buffer_feature.bounds  # get bounds of the buffer
+            # set the extent of the frame on the buffer with a 200m buffer to edge of axis
             ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
     # Create buffer from user specified polygon
     elif values["-BDYFILE-"] and values["-RADIUS-"]:
-        window["-DIALOGUE-"].update('polygon and buffer selected', text_color='green')
-        buffer_radius = float(values["-RADIUS-"])
+        window["-DIALOGUE-"].update('polygon and buffer selected', text_color='green')  # update dialogue
+        buffer_radius = float(values["-RADIUS-"])  # transform user buffer radius values into float
 
         if event == "-PROCEED-":
+            # call function to produce buffer from user polygon
             userpoly, userbuffer, buffer_feature, input_handles = \
                     searcharea_frompoly(values["-BDYFILE-"], buffer_radius)
-            xmin, ymin, xmax, ymax = buffer_feature.bounds
+            xmin, ymin, xmax, ymax = buffer_feature.bounds   # get bounds of the buffer
             # set the extent of the frame, give a 200m buffer to avoid being tight to edge of buffer feature
             ax.set_extent([(xmin-200), (xmax+200), (ymin-200), (ymax+200)], crs=myCRS)
 
@@ -651,9 +657,9 @@ while True: # Create an infinite loop which the GUI runs inside.
 
     # Search for all protected species in user created buffer
     if values["-SPP-"] and event == "-PROCEED-":
-        sppSearch, sppConcat, sppOutput = searchSpecies()
-        spptypes, spplabels = sppstyle()
-        handles = input_handles + spplabels
+        sppSearch, sppConcat, sppOutput = searchSpecies()  # Call species search function
+        spptypes, spplabels = sppstyle()  # Call species style function
+        handles = input_handles + spplabels  # Combine user features and species handles
         leg = fig.legend(handles=handles, loc='lower center', bbox_to_anchor=(0.5, 0),
                          title='Legend', title_fontsize=14, ncol=4, fontsize=10, frameon=True, framealpha=1)
         plt.suptitle(values["-SITENAME-"] + ' species map', fontsize=16)
