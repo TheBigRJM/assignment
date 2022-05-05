@@ -31,7 +31,9 @@ As the size of the master datasets the program is designed to work with would be
 
 As the sample dataset only has a restricted geographic range please limit your data searches please limit the inputs using the grid ref, easting/northing and polygon search capabilities to within these extents (using EPSG:27700, British National Grid coordinates):
 
-image
+https://gridreferencefinder.com/#gr=SJ8000030000|SJ800300|1,SJ8000040000|SJ800400|1,SJ9000030000|SJ900300|1,SJ9000040000|SJ900400|1
+
+![SampleAreaCoordinates](https://user-images.githubusercontent.com/101205549/166978597-b46de77d-4817-4037-a23e-7b861344eefd.jpg)
 
 The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file.
 
