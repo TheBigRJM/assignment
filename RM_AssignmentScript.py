@@ -719,7 +719,7 @@ while True:  # Create an  initial infinite loop which the GUI runs inside.
 
     # Search for sites only
     if values["-SITES-"] and event == "-PROCEED-":
-        sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites() # Call sites search function
+        sbiIntersect, basIntersect, site_labels, sitesOutput = searchSites()  # Call sites search function
         handles = input_handles + site_labels  # Combine user features and sites handles
         leg = fig.legend(handles=handles, title='Legend', title_fontsize=14, ncol=3,
                          fontsize=10, loc='lower center', frameon=True, framealpha=1)
