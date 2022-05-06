@@ -1,18 +1,19 @@
-name: assignment
+name: EGM722_assignment
 channels:
   - conda-forge
   - defaults
 dependencies:
   - python=3.8.8
-  - geopandas=0.9.0
+  - geopandas
   - cartopy=0.18.0
-  - notebook=6.2.0
-  - rasterio=1.2.0
-  - numpy=1.22.3
-  - pandas=1.4.1
-  - matplotlib=3.5.1
-  - shapely=1.8.0
-  - pysimplegui=4.59.0
+  - notebook
+  - rasterio
+  - numpy
+  - pandas
+  - matplotlib
+  - shapely
+  - pysimplegui
+  - pip
   - pip:
-    - bng=1.0.5
-    - matplotlib-scalebar=0.8.1
+    - bng
+    - matplotlib-scalebar
