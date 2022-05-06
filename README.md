@@ -29,13 +29,13 @@ Once you have this setup you can then use an IDE of your choice to run the progr
 ## 3. Guidance and geographic use limitations based on sample data provided for demonstration.
 As the size of the master datasets the program is designed to work with would be prohibitively large to supply to demonstrate the tools function, a sample of data has been provided to demonstrate the programs capabilities to the user. A copy of the sample data can be found in the SampleData folder. The dataset is restricted to a specific geographic area in Staffordshire. See the diagram below which details the extent of the datastes provided, the coordinates specified are in BNG (EPSG:27700) easting/northing format.
 
+The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file `SampleData/example search area/ExampleBoundarySearch_region.shp`.
+
 As the sample dataset only has a restricted geographic range please limit your data searches please limit the inputs using the grid ref, easting/northing and polygon search capabilities to within these extents (using EPSG:27700, British National Grid coordinates):
 
 https://gridreferencefinder.com/#gr=SJ8000030000|SJ800300|1,SJ8000040000|SJ800400|1,SJ9000030000|SJ900300|1,SJ9000040000|SJ900400|1
 
 ![SampleAreaCoordinates](https://user-images.githubusercontent.com/101205549/166978597-b46de77d-4817-4037-a23e-7b861344eefd.jpg)
-
-The input fields will accept either easting/northing, standard BNG grid references (e.g. SK000000) or a user input file (SHP or TAB format, either point, line or polygon). An example polygon has been provided within the sample data folder to demonstrate the capability of the search function using a user file `assignment/SampleData/example search area/ExampleBoundarySearch_region.shp`.
 
 ## 3. Running the tool
 
