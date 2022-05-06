@@ -37,7 +37,7 @@ https://gridreferencefinder.com/#gr=SJ8000030000|SJ800300|1,SJ8000040000|SJ80040
 
 ![SampleAreaCoordinates](https://user-images.githubusercontent.com/101205549/166978597-b46de77d-4817-4037-a23e-7b861344eefd.jpg)
 
-## 3. Running the tool
+## 4. Running the tool
 
 If the repository is cloned to your locally using the instructions in step 2, the tool should be able to find the sample data without making any changes to to the body of code itself. If the elements of the repository have been downloaded separately and saved in separate locations you may need to redefine the file paths on lines 526-531 of the code to find these files to their file path on your machine.
 
