@@ -522,6 +522,11 @@ def load_basemap(filepath):
 
     return bmxmin, bmymin, bmxmax, bmymax, dispimg
 
+
+
+# Setup CRS of the axis
+myCRS = ccrs.epsg(27700)  # Set project CRS to British National Grid, matches the CRS of datafiles
+
 # Load files to search from
 specieslayer = gpd.read_file('SampleData/SHP/ProtSpp_font_point.shp')  # load species 100m+ layer
 species1kmlayer = gpd.read_file('SampleData/SHP/ProtSpp1km_region.shp')  # load pecies 1km layer
@@ -530,18 +535,11 @@ baslayer = gpd.read_file('SampleData/SHP/BAS_region.shp')  # load BAS layer
 invasivespecies = gpd.read_file('SampleData/SHP/InvasiveSpp_font_point.shp')  # load invasive species 100m+ layer
 invasivespecies1km = gpd.read_file('SampleData/SHP/InvasiveSpp1km_region.shp')  # load invasive species 1km layer
 
-# Setup CRS of the axis
-myCRS = ccrs.epsg(27700)  # Set project CRS to British National Grid, matches the CRS of datafiles
-
 # load basemap
 # return extent values from load_basemap function
 bmxmin, bmymin, bmxmax, bmymax, basemap = load_basemap('output/mosaic.tif')
 # plot basemap using extents
 basemap_kwargs = {'extent': [bmxmin, bmxmax, bmymin, bmymax], 'transform': myCRS}
-
-
-
-
 
 
 
