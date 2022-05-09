@@ -12,7 +12,7 @@ The tool allows the user to input a grid reference, shapefile or mapinfo TAB fil
 
 For users who wish to have access to the back-end script for debugging or adaptating, the program can also be run using the terminal in an IDE of your choice. This will load the GUI in the same way as the standalone installation but run through your IDE terminal rather than from an .exe file.
 
-If you wish to use the tool in this way you will first need to install `git` and `conda, along with an IDE (if you don't already have these installed. The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE.
+If you wish to use the tool in this way you will first need to install `git` and `conda`, along with an IDE (if you don't already have these installed. The program was written using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/#section=windows), I would recommend using this IDE.
 
 Advice on [downloading](https://git-scm.com/downloads) and [installing git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [conda](https://docs.anaconda.com/anaconda/install/index.html) on your operating system. You may also wish to install [GitHub Desktop](https://desktop.github.com/) which will allow you to save your changes locally before commiiting them to your remote repository should you wish to adapt the script.
  
