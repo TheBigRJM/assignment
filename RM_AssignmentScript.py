@@ -182,7 +182,7 @@ def searcharea_frompoly(user_polypath, buffer_radius):
     userbuffer = gpd.GeoSeries(userfile.buffer(buffer_radius))  # buffer user file with user input buffer (for plotting)
     bufferGeom = union.buffer(buffer_radius)  # Create shapely geometry to carry out intersects
 
-    userpoly.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
+    userfile.plot(ax=ax, edgecolor='blue', color='none', hatch='//')
     userbuffer.plot(ax=ax, color='none', edgecolor='red', linewidth=1.5)
 
     userpoly_handle = mpatches.Patch(facecolor='None', hatch='//', edgecolor='blue',
